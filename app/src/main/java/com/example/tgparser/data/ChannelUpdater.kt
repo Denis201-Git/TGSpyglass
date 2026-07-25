@@ -1,6 +1,7 @@
 package com.example.tgparser.data
 
 import android.util.Log
+import com.example.tgparser.utils.formatCurrentTime
 import com.example.tgparser.utils.formatMessageDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +41,8 @@ object ChannelUpdater {
                 username = result.channel.username.ifBlank { channel.username },
                 lastMessage = lastMessage?.text.orEmpty(),
                 messagesCount = result.messages.size,
-                lastUpdate = formatMessageDate(lastMessage?.date ?: "")
+                lastUpdate = formatMessageDate(lastMessage?.date ?: ""),
+                lastRefreshTime = formatCurrentTime()
             )
         )
 

@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tgparser.model.Channel
 
 @Composable
@@ -15,6 +16,10 @@ fun ChannelCard(
     channel: Channel,
     onClick: () -> Unit
 ) {
+
+    val preview = channel.lastMessage.let {
+        if (it.length > 33) it.take(30) + "..." else it
+    }
 
     Card(
         onClick = onClick,
@@ -75,17 +80,27 @@ fun ChannelCard(
 
 
                 Text(
-                    text = channel.lastMessage,
+                    text = preview,
                     style = MaterialTheme.typography.bodyMedium
                 )
 
             }
 
+            Column(
+                modifier = Modifier
+            ) {
+                Text(
+                    text = channel.lastUpdate,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 18.sp
+                )
 
-            Text(
-                text = channel.lastUpdate,
-                style = MaterialTheme.typography.labelSmall
-            )
+                Text(
+                    text = "${channel.lastRefreshTime} ⟲",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 18.sp
+                )
+            }
 
         }
 

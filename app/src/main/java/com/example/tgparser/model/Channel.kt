@@ -7,5 +7,6 @@ data class Channel(
     val username: String,
     val lastMessage: String,
     val messagesCount: Int,
-    val lastUpdate: String
+    val lastUpdate: String,
+    val lastRefreshTime: String = ""
 )

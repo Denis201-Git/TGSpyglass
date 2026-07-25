@@ -11,6 +11,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -52,41 +55,35 @@ fun TGParserTheme(
     val systemDark = isSystemInDarkTheme()
 
     val colorScheme = when (appTheme) {
-
-        AppTheme.LIGHT ->
-            LightColorScheme
-
-        AppTheme.DARK ->
-            DarkColorScheme
-
-        AppTheme.AMOLED ->
-            AmoledColorScheme
-
+        AppTheme.LIGHT -> LightColorScheme
+        AppTheme.DARK -> DarkColorScheme
+        AppTheme.AMOLED -> AmoledColorScheme
         AppTheme.SYSTEM -> {
-
-            if (
-                dynamicColor &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-            ) {
-
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val context = LocalContext.current
-
-                if (systemDark)
-                    dynamicDarkColorScheme(context)
-                else
-                    dynamicLightColorScheme(context)
-
+                if (systemDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             } else {
-
-                if (systemDark)
-                    DarkColorScheme
-                else
-                    LightColorScheme
-
+                if (systemDark) DarkColorScheme else LightColorScheme
             }
-
         }
+    }
 
+    val view = LocalView.current
+
+    SideEffect {
+        val window = (view.context as Activity).window
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = when (appTheme) {
+            AppTheme.LIGHT -> true
+            AppTheme.DARK -> false
+            AppTheme.AMOLED -> false
+            AppTheme.SYSTEM -> !systemDark
+        }
+        WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = when (appTheme) {
+            AppTheme.LIGHT -> true
+            AppTheme.DARK -> false
+            AppTheme.AMOLED -> false
+            AppTheme.SYSTEM -> !systemDark
+        }
     }
 
     MaterialTheme(

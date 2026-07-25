@@ -27,14 +27,10 @@ import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.ui.screens.ChannelScreen
 import com.example.tgparser.ui.screens.ChannelsScreen
 import com.example.tgparser.ui.screens.SettingsScreen
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
-
-    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -64,7 +60,6 @@ fun AppNavGraph() {
                     onSettingsClick = {
                         navController.navigate("settings")
                     },
-                    scope = scope
                 )
             }
 

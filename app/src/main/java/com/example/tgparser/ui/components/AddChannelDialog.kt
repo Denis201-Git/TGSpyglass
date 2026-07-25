@@ -46,13 +46,13 @@ import com.example.tgparser.utils.formatMessageDate
 import android.util.Log
 import com.example.tgparser.data.ParserState
 import com.example.tgparser.data.AppSnackbarManager
-import kotlinx.coroutines.CoroutineScope
+import com.example.tgparser.data.ChannelRepository
+import com.example.tgparser.data.AppScope
+import com.example.tgparser.utils.formatCurrentTime
 
 @Composable
 fun AddChannelDialog(
     onDismiss: () -> Unit,
-    onChannelAdded: (Channel) -> Unit,
-    scope: CoroutineScope
 ) {
 
     val strings = LocalStrings.current
@@ -91,7 +91,7 @@ fun AddChannelDialog(
         }
 
         if (ParserState.isBusy) {
-            scope.launch {
+            AppScope.scope.launch {
                 AppSnackbarManager.show(strings.parserBusy)
             }
             return
@@ -101,7 +101,7 @@ fun AddChannelDialog(
         statusMessage = null
         isLoading = true
 
-        scope.launch {
+        AppScope.scope.launch {
             try {
 
                 val result = withContext(Dispatchers.IO) {
@@ -124,7 +124,8 @@ fun AddChannelDialog(
                         username = "@${result.channel.id}",
                         lastMessage = lastMessage?.text.orEmpty(),
                         messagesCount = result.messages.size,
-                        lastUpdate = formatMessageDate(lastMessage?.date ?: "")
+                        lastUpdate = formatMessageDate(lastMessage?.date ?: ""),
+                        lastRefreshTime = formatCurrentTime()
                     )
 
                     MessageRepository.addMessages(
@@ -132,7 +133,7 @@ fun AddChannelDialog(
                         result.messages
                     )
 
-                    onChannelAdded(channel)
+                    ChannelRepository.addChannel(channel)
 
                     isError = false
                     statusMessage = strings.addChannelSuccess

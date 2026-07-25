@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.tgparser.model.Channel
 import com.example.tgparser.ui.components.AddChannelDialog
 import com.example.tgparser.ui.components.ChannelCard
 import com.example.tgparser.ui.localization.LocalStrings
@@ -48,19 +47,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import com.example.tgparser.data.ChannelUpdater
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import com.example.tgparser.data.AppSnackbarManager
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.offset
-import kotlinx.coroutines.CoroutineScope
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelsScreen(
     onChannelClick: (String) -> Unit,
     onSettingsClick: () -> Unit,
-    scope: CoroutineScope
 ) {
 
     val strings = LocalStrings.current
@@ -109,6 +104,32 @@ fun ChannelsScreen(
     val channels = ChannelRepository.getChannels()
 
     val scope = rememberCoroutineScope()
+
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+
+    fun refreshAll() {
+        if (ParserState.isBusy || isRefreshing) {
+            if (ParserState.isBusy) {
+                scope.launch {
+                    AppSnackbarManager.show(strings.parserBusy)
+                }
+            }
+            return
+        }
+
+        scope.launch {
+            isRefreshing = true
+            ParserState.lock()
+            try {
+                ChannelUpdater.updateAllChannels()
+            } finally {
+                ParserState.unlock()
+                isRefreshing = false
+            }
+        }
+    }
 
 
     Box(
@@ -166,21 +187,7 @@ fun ChannelsScreen(
 
                     FloatingActionButton(
                         onClick = {
-                            if (ParserState.isBusy) {
-                                scope.launch {
-                                    AppSnackbarManager.show(strings.parserBusy)
-                                }
-                                return@FloatingActionButton
-                            }
-
-                            ParserState.lock()
-                            scope.launch {
-                                try {
-                                    ChannelUpdater.updateAllChannels()
-                                } finally {
-                                    ParserState.unlock()
-                                }
-                            }
+                            refreshAll()
                         }
                     ) {
                         Icon(
@@ -221,36 +228,25 @@ fun ChannelsScreen(
         ) { innerPadding ->
 
 
-            LazyColumn(
-
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { refreshAll() },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-
             ) {
-
-
-                items(channels) { channel ->
-
-
-                    ChannelCard(
-
-                        channel = channel,
-
-                        onClick = {
-
-                            onChannelClick(
-                                channel.id
-                            )
-
-                        }
-
-                    )
-
-
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(channels) { channel ->
+                        ChannelCard(
+                            channel = channel,
+                            onClick = {
+                                onChannelClick(channel.id)
+                            }
+                        )
+                    }
                 }
-
-
             }
 
 
@@ -330,12 +326,7 @@ fun ChannelsScreen(
                         AddChannelDialog(
                             onDismiss = {
                                 animateAddChannelDialog = false
-                            },
-                            onChannelAdded = { channel ->
-                                ChannelRepository.addChannel(channel)
-                                animateAddChannelDialog = false
-                            },
-                            scope = scope
+                            }
                         )
 
 
