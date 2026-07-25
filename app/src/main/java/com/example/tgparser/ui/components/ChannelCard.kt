@@ -1,0 +1,94 @@
+package com.example.tgparser.ui.components
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import com.example.tgparser.model.Channel
+
+@Composable
+fun ChannelCard(
+    channel: Channel,
+    onClick: () -> Unit
+) {
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 8.dp,
+                vertical = 4.dp
+            )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Surface(
+                modifier = Modifier.size(52.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary
+            ) {
+
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Text(
+                        text = channel.name.first().uppercase(),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+
+                }
+
+            }
+
+
+            Spacer(
+                modifier = Modifier.width(12.dp)
+            )
+
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = channel.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+
+                Text(
+                    text = channel.username,
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+
+                Text(
+                    text = channel.lastMessage,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+            }
+
+
+            Text(
+                text = channel.lastUpdate,
+                style = MaterialTheme.typography.labelSmall
+            )
+
+        }
+
+    }
+
+}
