@@ -13,6 +13,6 @@ data class ParseResult(
     val channel: ChannelInfo = ChannelInfo(),
 
     @SerialName("messages")
-    val messages: List<Message> = emptyList()
+    val messages: List<ParserMessage> = emptyList()
 
 )

@@ -33,6 +33,10 @@ fun formatMessageDate(
 
 }
 
+fun currentIsoTimestamp(): String {
+    return java.time.Instant.now().toString()
+}
+
 fun formatCurrentTime(): String {
 
     return try {

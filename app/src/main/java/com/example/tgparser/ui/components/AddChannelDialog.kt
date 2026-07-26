@@ -1,6 +1,5 @@
 package com.example.tgparser.ui.components
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.CircularProgressIndicator
 import com.example.tgparser.utils.formatTelegramLink
-import androidx.compose.runtime.rememberCoroutineScope
 import com.example.tgparser.data.MessageRepository
 import com.example.tgparser.data.ParserRepository
 import kotlinx.coroutines.Dispatchers
@@ -42,13 +40,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import com.example.tgparser.utils.formatMessageDate
-import android.util.Log
 import com.example.tgparser.data.ParserState
 import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.ChannelRepository
 import com.example.tgparser.data.AppScope
-import com.example.tgparser.utils.formatCurrentTime
+import com.example.tgparser.model.toMessage
+import com.example.tgparser.utils.currentIsoTimestamp
 
 @Composable
 fun AddChannelDialog(
@@ -56,6 +53,8 @@ fun AddChannelDialog(
 ) {
 
     val strings = LocalStrings.current
+
+    val savedAt = currentIsoTimestamp()
 
     val repository = remember { ParserRepository() }
 
@@ -115,22 +114,25 @@ fun AddChannelDialog(
 
                 } else {
 
-                    val lastMessage = result.messages.maxByOrNull { it.messageId }
+                    val messages = result.messages.map {
+                        it.toMessage(savedAt)
+                    }
+
+                    val lastMessage = messages.maxByOrNull { it.messageId }
 
                     val channel = Channel(
-                        id = result.channel.id,
                         telegramId = result.channel.id,
                         name = result.channel.name,
                         username = "@${result.channel.id}",
                         lastMessage = lastMessage?.text.orEmpty(),
-                        messagesCount = result.messages.size,
-                        lastUpdate = formatMessageDate(lastMessage?.date ?: ""),
-                        lastRefreshTime = formatCurrentTime()
+                        messagesCount = messages.size,
+                        lastUpdate = lastMessage?.publishedAt.orEmpty(),
+                        lastRefreshTime = currentIsoTimestamp()
                     )
 
                     MessageRepository.addMessages(
                         channel.telegramId,
-                        result.messages
+                        messages
                     )
 
                     ChannelRepository.addChannel(channel)

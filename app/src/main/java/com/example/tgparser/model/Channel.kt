@@ -1,7 +1,6 @@
 package com.example.tgparser.model
 
 data class Channel(
-    val id: String,
     val telegramId: String,
     val name: String,
     val username: String,

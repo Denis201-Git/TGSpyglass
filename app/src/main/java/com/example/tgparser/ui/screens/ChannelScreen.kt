@@ -24,6 +24,13 @@ import com.example.tgparser.data.MessageRepository
 import com.example.tgparser.ui.components.EmptyMessages
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.example.tgparser.data.ChannelUpdater
+import com.example.tgparser.data.ParserState
+import com.example.tgparser.data.AppSnackbarManager
+import com.example.tgparser.ui.localization.LocalStrings
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +42,29 @@ fun ChannelScreen(
 
     val messages = MessageRepository.getMessages(channelId)
 
+    val strings = LocalStrings.current
+
+    val scope = rememberCoroutineScope()
+
     val listState = rememberLazyListState()
+
+    fun refreshChannel() {
+        if (ParserState.isBusy) {
+            scope.launch {
+                AppSnackbarManager.show(strings.parserBusy)
+            }
+            return
+        }
+
+        scope.launch {
+            ParserState.lock()
+            try {
+                ChannelUpdater.updateChannel(channelId)
+            } finally {
+                ParserState.unlock()
+            }
+        }
+    }
 
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -70,6 +99,19 @@ fun ChannelScreen(
 
                     }
 
+                },
+
+                actions = {
+                    IconButton(
+                        onClick = {
+                            refreshChannel()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = "Refresh"
+                        )
+                    }
                 }
 
             )

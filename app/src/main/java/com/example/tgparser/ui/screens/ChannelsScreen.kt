@@ -260,10 +260,10 @@ fun ChannelsScreen(
                         ChannelCard(
                             channel = channel,
                             onClick = {
-                                onChannelClick(channel.id)
+                                onChannelClick(channel.telegramId)
                             },
                                     onRefreshClick = {
-                                refreshChannel(channel.id)
+                                refreshChannel(channel.telegramId)
                             }
                         )
                     }

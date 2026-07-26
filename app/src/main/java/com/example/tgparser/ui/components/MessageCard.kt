@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.tgparser.model.Message
 import com.example.tgparser.utils.formatMessageDate
-import com.example.tgparser.ui.components.MediaPreview
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import androidx.core.net.toUri
@@ -75,7 +74,7 @@ fun MessageCard(
 
         Text(
 
-            text = "👁 ${message.views}   ${formatMessageDate(message.date)}",
+            text = "👁 ${message.views}   ${formatMessageDate(message.publishedAt)}",
 
             style = MaterialTheme.typography.labelSmall,
 
