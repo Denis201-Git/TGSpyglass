@@ -131,6 +131,24 @@ fun ChannelsScreen(
         }
     }
 
+    fun refreshChannel(channelId: String) {
+        if (ParserState.isBusy) {
+            scope.launch {
+                AppSnackbarManager.show(strings.parserBusy)
+            }
+            return
+        }
+
+        scope.launch {
+            ParserState.lock()
+            try {
+                ChannelUpdater.updateChannel(channelId)
+            } finally {
+                ParserState.unlock()
+            }
+        }
+    }
+
 
     Box(
 
@@ -243,6 +261,9 @@ fun ChannelsScreen(
                             channel = channel,
                             onClick = {
                                 onChannelClick(channel.id)
+                            },
+                                    onRefreshClick = {
+                                refreshChannel(channel.id)
                             }
                         )
                     }
