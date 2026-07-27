@@ -8,11 +8,17 @@ data class Message(
 
     val messageId: Int,
 
+    val version: Int = 1,
+
     val text: String,
 
     val publishedAt: String,
 
     val savedAt: String,
+
+    val isEdited: Boolean = false,
+
+    val isDeleted: Boolean = false,
 
     val views: String,
 

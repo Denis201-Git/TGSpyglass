@@ -47,7 +47,6 @@ object ChannelUpdater {
         ChannelRepository.updateChannel(
             channel.copy(
                 name = result.channel.name.ifBlank { channel.name },
-                username = result.channel.username.ifBlank { channel.username },
                 lastMessage = lastMessage?.text.orEmpty(),
                 messagesCount = result.messages.size,
                 lastUpdate = lastMessage?.publishedAt.orEmpty(),

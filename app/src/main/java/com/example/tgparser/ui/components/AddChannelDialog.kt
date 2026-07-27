@@ -123,7 +123,6 @@ fun AddChannelDialog(
                     val channel = Channel(
                         telegramId = result.channel.id,
                         name = result.channel.name,
-                        username = "@${result.channel.id}",
                         lastMessage = lastMessage?.text.orEmpty(),
                         messagesCount = messages.size,
                         lastUpdate = lastMessage?.publishedAt.orEmpty(),
