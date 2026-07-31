@@ -6,7 +6,7 @@ fun ParserMessage.toMessage(
 
     return Message(
 
-        channelUsername = channelUsername,
+        channelTelegramId = channelUsername,
 
         messageId = messageId,
 

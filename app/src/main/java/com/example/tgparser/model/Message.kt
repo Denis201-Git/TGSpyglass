@@ -4,7 +4,7 @@ data class Message(
 
     val id: Long = 0L,
 
-    val channelUsername: String,
+    val channelTelegramId: String,
 
     val messageId: Int,
 

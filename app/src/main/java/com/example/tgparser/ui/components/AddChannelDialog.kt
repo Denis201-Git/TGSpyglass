@@ -114,24 +114,20 @@ fun AddChannelDialog(
 
                 } else {
 
-                    val messages = result.messages.map {
-                        it.toMessage(savedAt)
-                    }
-
-                    val lastMessage = messages.maxByOrNull { it.messageId }
+                    val lastMessage = result.messages.maxByOrNull { it.messageId }
 
                     val channel = Channel(
                         telegramId = result.channel.id,
                         name = result.channel.name,
                         lastMessage = lastMessage?.text.orEmpty(),
-                        messagesCount = messages.size,
+                        messagesCount = result.messages.size,
                         lastUpdate = lastMessage?.publishedAt.orEmpty(),
                         lastRefreshTime = currentIsoTimestamp()
                     )
 
-                    MessageRepository.addMessages(
+                    MessageRepository.syncMessages(
                         channel.telegramId,
-                        messages
+                        result.messages
                     )
 
                     ChannelRepository.addChannel(channel)

@@ -3,6 +3,7 @@ package com.example.tgparser.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -17,7 +18,8 @@ import com.example.tgparser.utils.formatMessageDate
 fun ChannelCard(
     channel: Channel,
     onClick: () -> Unit,
-    onRefreshClick: () -> Unit
+    onRefreshClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
 
     val preview = channel.lastMessage.let {
@@ -85,12 +87,6 @@ fun ChannelCard(
             }
 
             Column {
-                Text(
-                    text = formatMessageDate(channel.lastUpdate),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 18.sp
-                )
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -106,6 +102,25 @@ fun ChannelCard(
                         Icon(
                             imageVector = Icons.Outlined.Refresh,
                             contentDescription = "Refresh channel"
+                        )
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = formatMessageDate(channel.lastUpdate),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 18.sp
+                    )
+
+                    IconButton(
+                        onClick = onDeleteClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Delete channel"
                         )
                     }
                 }

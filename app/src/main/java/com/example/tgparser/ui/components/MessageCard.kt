@@ -13,11 +13,26 @@ import com.example.tgparser.utils.formatMessageDate
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import androidx.core.net.toUri
-
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material.icons.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun MessageCard(
-    message: Message
+    message: Message,
+    versionsCount: Int,
+    onPreviousVersion: (() -> Unit)? = null,
+    onNextVersion: (() -> Unit)? = null
 ) {
 
     val context = LocalContext.current
@@ -72,18 +87,113 @@ fun MessageCard(
         }
 
 
-        Text(
-
-            text = "👁 ${message.views}   ${formatMessageDate(message.publishedAt)}",
-
-            style = MaterialTheme.typography.labelSmall,
-
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Row(
 
             modifier = Modifier
-                .padding(top = 8.dp)
+                .fillMaxWidth()
+                .padding(top = 8.dp),
 
-        )
+            verticalAlignment = Alignment.CenterVertically
+
+        ) {
+
+            Text(
+
+                text = "👁 ${message.views}   ${formatMessageDate(message.publishedAt)}",
+
+                style = MaterialTheme.typography.labelSmall,
+
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+
+            )
+
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+
+            if (versionsCount > 1) {
+
+                IconButton(
+
+                    onClick = {
+                        onPreviousVersion?.invoke()
+                    },
+
+                    enabled = message.version > 1
+
+                ) {
+
+                    Icon(
+
+                        imageVector = Icons.Outlined.KeyboardArrowLeft,
+
+                        contentDescription = "Previous version",
+
+                        tint =
+                            if (message.version > 1)
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            else
+                                MaterialTheme.colorScheme.outline
+
+                    )
+
+                }
+
+                Text(
+
+                    text = "Version ${message.version} of $versionsCount",
+
+                    style = MaterialTheme.typography.labelSmall,
+
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+
+                )
+
+                IconButton(
+
+                    onClick = {
+                        onNextVersion?.invoke()
+                    },
+
+                    enabled = message.isEdited
+
+                ) {
+
+                    Icon(
+
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+
+                        contentDescription = "Next version",
+
+                        tint =
+                            if (message.isEdited)
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            else
+                                MaterialTheme.colorScheme.outline
+
+                    )
+
+                }
+
+            }
+
+            if (message.isDeleted) {
+
+                Icon(
+
+                    imageVector = Icons.Outlined.Delete,
+
+                    contentDescription = "Deleted",
+
+                    modifier = Modifier.size(16.dp),
+
+                    tint = MaterialTheme.colorScheme.outline
+
+                )
+
+            }
+
+        }
 
     }
 

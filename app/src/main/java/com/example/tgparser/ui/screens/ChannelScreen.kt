@@ -31,6 +31,8 @@ import com.example.tgparser.data.ChannelUpdater
 import com.example.tgparser.data.ParserState
 import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.ui.localization.LocalStrings
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +43,10 @@ fun ChannelScreen(
 ) {
 
     val messages = MessageRepository.getMessages(channelId)
+
+    val displayedVersions = remember {
+        mutableStateMapOf<Int, Int>()
+    }
 
     val strings = LocalStrings.current
 
@@ -133,9 +139,60 @@ fun ChannelScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                items(messages) { message ->
+                items(messages) { latestMessage ->
 
-                    MessageCard(message)
+                    val versions = MessageRepository.getMessageVersions(
+                        channelId,
+                        latestMessage.messageId
+                    )
+
+                    val displayedVersion =
+                        displayedVersions[latestMessage.messageId]
+
+                    val message =
+                        if (displayedVersion == null) {
+
+                            versions.last()
+
+                        } else {
+
+                            versions.firstOrNull {
+                                it.version == displayedVersion
+                            } ?: versions.last()
+
+                        }
+
+                    val versionsCount = versions.size
+
+                    MessageCard(
+
+                        message = message,
+
+                        versionsCount = versionsCount,
+
+                        onPreviousVersion = {
+
+                            if (message.version > 1) {
+
+                                displayedVersions[message.messageId] =
+                                    message.version - 1
+
+                            }
+
+                        },
+
+                        onNextVersion = {
+
+                            if (message.isEdited) {
+
+                                displayedVersions[message.messageId] =
+                                    message.version + 1
+
+                            }
+
+                        }
+
+                    )
 
                 }
 

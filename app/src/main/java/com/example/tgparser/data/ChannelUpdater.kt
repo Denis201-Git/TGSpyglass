@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.tgparser.utils.currentIsoTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.example.tgparser.model.toMessage
 
 object ChannelUpdater {
 
@@ -28,21 +27,20 @@ object ChannelUpdater {
 
         val result = parserRepository.parseChannel(url)
 
-        val savedAt = currentIsoTimestamp()
-
-        val messages = result.messages.map {
-            it.toMessage(savedAt)
-        }
-
         if (result.error.isNotEmpty()) {
             Log.d("TGParser", "Update failed for $channelId: ${result.error}")
 
             return@withContext
         }
 
-        val lastMessage = messages.maxByOrNull { it.messageId }
+        MessageRepository.syncMessages(
+            channel.telegramId,
+            result.messages
+        )
 
-        MessageRepository.replaceMessages(channel.telegramId, messages)
+        val messages = MessageRepository.getMessages(channel.telegramId)
+
+        val lastMessage = messages.maxByOrNull { it.messageId }
 
         ChannelRepository.updateChannel(
             channel.copy(
@@ -54,6 +52,6 @@ object ChannelUpdater {
             )
         )
 
-        Log.d("TGParser", "Updated $channelId: ${messages.size} messages")    }
-
+        Log.d("TGParser", "Updated $channelId: ${messages.size} messages")
+    }
 }

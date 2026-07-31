@@ -24,4 +24,13 @@ object ChannelRepository {
             channels.add(updatedChannel)
         }
     }
+
+    fun deleteChannel(channelTelegramId: String) {
+
+        MessageRepository.deleteMessages(channelTelegramId)
+
+        channels.removeAll {
+            it.telegramId == channelTelegramId
+        }
+    }
 }

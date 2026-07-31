@@ -50,6 +50,8 @@ import androidx.compose.material.icons.outlined.Refresh
 import com.example.tgparser.data.AppSnackbarManager
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +61,10 @@ fun ChannelsScreen(
 ) {
 
     val strings = LocalStrings.current
+
+    var channelToDelete by remember {
+        mutableStateOf<String?>(null)
+    }
 
 
     var renderAddChannelDialog by remember {
@@ -262,8 +268,11 @@ fun ChannelsScreen(
                             onClick = {
                                 onChannelClick(channel.telegramId)
                             },
-                                    onRefreshClick = {
+                            onRefreshClick = {
                                 refreshChannel(channel.telegramId)
+                            },
+                            onDeleteClick = {
+                                channelToDelete = channel.telegramId
                             }
                         )
                     }
@@ -362,6 +371,55 @@ fun ChannelsScreen(
 
         }
 
+        if (channelToDelete != null) {
+
+            AlertDialog(
+                onDismissRequest = {
+                    channelToDelete = null
+                },
+
+                title = {
+                    Text("Delete channel?")
+                },
+
+                text = {
+                    Text(
+                        "The channel and all its messages will be deleted."
+                    )
+                },
+
+                confirmButton = {
+
+                    TextButton(
+                        onClick = {
+
+                            val channelId = channelToDelete
+
+                            if (channelId != null) {
+                                ChannelRepository.deleteChannel(channelId)
+                            }
+
+                            channelToDelete = null
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+
+                },
+
+                dismissButton = {
+
+                    TextButton(
+                        onClick = {
+                            channelToDelete = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+
+                }
+            )
+        }
 
     }
 
