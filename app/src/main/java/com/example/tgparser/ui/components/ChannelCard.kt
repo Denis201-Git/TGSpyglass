@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tgparser.model.Channel
-import com.example.tgparser.utils.formatMessageDate
+import com.example.tgparser.utils.formatRelativeDate
 
 @Composable
 fun ChannelCard(
@@ -91,7 +91,7 @@ fun ChannelCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = formatMessageDate(channel.lastRefreshTime),
+                        text = formatRelativeDate(channel.lastRefreshTime),
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 18.sp
                     )
@@ -110,7 +110,7 @@ fun ChannelCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = formatMessageDate(channel.lastUpdate),
+                        text = formatRelativeDate(channel.lastUpdate),
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 18.sp
                     )
