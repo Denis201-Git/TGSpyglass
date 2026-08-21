@@ -13,6 +13,13 @@ import kotlinx.coroutines.flow.Flow
 interface ChannelDao {
 
     @Query("""
+    SELECT *
+    FROM channels
+    ORDER BY name
+""")
+    suspend fun getAll(): List<ChannelEntity>
+
+    @Query("""
         SELECT *
         FROM channels
         ORDER BY name

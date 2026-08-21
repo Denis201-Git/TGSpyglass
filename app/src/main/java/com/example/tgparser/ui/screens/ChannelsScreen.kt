@@ -52,6 +52,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +108,9 @@ fun ChannelsScreen(
     }
 
 
-    val channels = ChannelRepository.getChannels()
+    val channels by ChannelRepository
+        .observeChannels()
+        .collectAsState(initial = emptyList())
 
     val scope = rememberCoroutineScope()
 
@@ -396,7 +399,9 @@ fun ChannelsScreen(
                             val channelId = channelToDelete
 
                             if (channelId != null) {
-                                ChannelRepository.deleteChannel(channelId)
+                                scope.launch {
+                                    ChannelRepository.deleteChannel(channelId)
+                                }
                             }
 
                             channelToDelete = null

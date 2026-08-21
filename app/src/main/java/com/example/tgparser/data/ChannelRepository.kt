@@ -1,36 +1,96 @@
 package com.example.tgparser.data
 
-import androidx.compose.runtime.mutableStateListOf
+import com.example.tgparser.data.database.AppDatabaseProvider
+import com.example.tgparser.data.database.entity.ChannelEntity
 import com.example.tgparser.model.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 object ChannelRepository {
 
-    private val channels = mutableStateListOf<Channel>()
+    private val channelDao
+        get() = AppDatabaseProvider
+            .get()
+            .channelDao()
 
-    fun getChannels(): List<Channel> {
-        return channels
+    fun observeChannels(): Flow<List<Channel>> {
+        return channelDao
+            .observeAll()
+            .map { entities ->
+                entities.map { it.toModel() }
+            }
     }
 
-    fun addChannel(channel: Channel) {
-        channels.add(channel)
+    suspend fun getChannels(): List<Channel> {
+        return channelDao
+            .getAll()
+            .map { it.toModel() }
     }
 
-    fun updateChannel(updatedChannel: Channel) {
-        val index = channels.indexOfFirst { it.telegramId == updatedChannel.telegramId }
+    suspend fun getChannel(
+        telegramId: String
+    ): Channel? {
 
-        if (index != -1) {
-            channels[index] = updatedChannel
+        return channelDao
+            .getByTelegramId(telegramId)
+            ?.toModel()
+    }
+
+    suspend fun addChannel(
+        channel: Channel
+    ) {
+        channelDao.insert(
+            channel.toEntity()
+        )
+    }
+
+    suspend fun updateChannel(
+        updatedChannel: Channel
+    ) {
+        val existing = channelDao.getByTelegramId(
+            updatedChannel.telegramId
+        )
+
+        if (existing == null) {
+            channelDao.insert(
+                updatedChannel.toEntity()
+            )
         } else {
-            channels.add(updatedChannel)
+            channelDao.update(
+                updatedChannel.toEntity()
+            )
         }
     }
 
-    fun deleteChannel(channelTelegramId: String) {
+    suspend fun deleteChannel(
+        channelTelegramId: String
+    ) {
+        val channel = channelDao.getByTelegramId(
+            channelTelegramId
+        ) ?: return
 
-        MessageRepository.deleteMessages(channelTelegramId)
+        channelDao.delete(channel)
+    }
 
-        channels.removeAll {
-            it.telegramId == channelTelegramId
-        }
+    private fun Channel.toEntity(): ChannelEntity {
+        return ChannelEntity(
+            telegramId = telegramId,
+            name = name,
+            lastMessage = lastMessage,
+            messagesCount = messagesCount,
+            lastUpdate = lastUpdate,
+            lastRefreshTime = lastRefreshTime
+        )
+    }
+
+    private fun ChannelEntity.toModel(): Channel {
+        return Channel(
+            telegramId = telegramId,
+            name = name,
+            lastMessage = lastMessage,
+            messagesCount = messagesCount,
+            lastUpdate = lastUpdate,
+            lastRefreshTime = lastRefreshTime
+        )
     }
 }
