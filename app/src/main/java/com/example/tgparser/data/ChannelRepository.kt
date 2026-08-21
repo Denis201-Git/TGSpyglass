@@ -5,6 +5,8 @@ import com.example.tgparser.data.database.entity.ChannelEntity
 import com.example.tgparser.model.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import androidx.room.withTransaction
+import com.example.tgparser.model.ParserMessage
 
 object ChannelRepository {
 
@@ -19,6 +21,25 @@ object ChannelRepository {
             .map { entities ->
                 entities.map { it.toModel() }
             }
+    }
+
+    suspend fun addChannelWithMessages(
+        channel: Channel,
+        parserMessages: List<ParserMessage>
+    ) {
+        val database = AppDatabaseProvider.get()
+
+        database.withTransaction {
+
+            channelDao.insert(
+                channel.toEntity()
+            )
+
+            MessageRepository.syncMessagesInternal(
+                channelTelegramId = channel.telegramId,
+                parserMessages = parserMessages
+            )
+        }
     }
 
     suspend fun getChannels(): List<Channel> {

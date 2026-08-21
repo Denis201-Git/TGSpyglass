@@ -33,6 +33,8 @@ import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.ui.localization.LocalStrings
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +44,16 @@ fun ChannelScreen(
     onBackClick: () -> Unit
 ) {
 
-    val messages = MessageRepository.getMessages(channelId)
+    val allVersions by MessageRepository
+        .observeAllMessageVersions(channelId)
+        .collectAsState(initial = emptyList())
+
+    val messages = allVersions
+        .groupBy { it.messageId }
+        .mapNotNull { (_, versions) ->
+            versions.maxByOrNull { it.version }
+        }
+        .sortedBy { it.messageId }
 
     val displayedVersions = remember {
         mutableStateMapOf<Int, Int>()
@@ -141,10 +152,9 @@ fun ChannelScreen(
             ) {
                 items(messages) { latestMessage ->
 
-                    val versions = MessageRepository.getMessageVersions(
-                        channelId,
-                        latestMessage.messageId
-                    )
+                    val versions = allVersions.filter {
+                        it.messageId == latestMessage.messageId
+                    }
 
                     val displayedVersion =
                         displayedVersions[latestMessage.messageId]

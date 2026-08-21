@@ -116,6 +116,14 @@ fun AddChannelDialog(
 
                     val lastMessage = result.messages.maxByOrNull { it.messageId }
 
+                    if (result.messages.isEmpty()) {
+
+                        isError = true
+                        statusMessage = strings.addChannelError
+
+                        return@launch
+                    }
+
                     val channel = Channel(
                         telegramId = result.channel.id,
                         name = result.channel.name,
@@ -125,12 +133,10 @@ fun AddChannelDialog(
                         lastRefreshTime = currentIsoTimestamp()
                     )
 
-                    MessageRepository.syncMessages(
-                        channel.telegramId,
-                        result.messages
+                    ChannelRepository.addChannelWithMessages(
+                        channel = channel,
+                        parserMessages = result.messages
                     )
-
-                    ChannelRepository.addChannel(channel)
 
                     isError = false
                     statusMessage = strings.addChannelSuccess

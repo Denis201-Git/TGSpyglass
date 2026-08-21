@@ -29,6 +29,32 @@ interface MessageDao {
     ): Flow<List<MessageWithMedia>>
 
     @Query("""
+    SELECT *
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+    ORDER BY messageId, version
+""")
+    fun observeAllMessages(
+        channelTelegramId: String
+    ): Flow<List<MessageWithMedia>>
+
+    @Query("""
+    SELECT *
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+    AND version = (
+        SELECT MAX(versions.version)
+        FROM messages AS versions
+        WHERE versions.channelTelegramId = messages.channelTelegramId
+        AND versions.messageId = messages.messageId
+    )
+    ORDER BY messageId
+""")
+    suspend fun getLatestMessages(
+        channelTelegramId: String
+    ): List<MessageWithMedia>
+
+    @Query("""
         SELECT *
         FROM messages
         WHERE channelTelegramId = :channelTelegramId
