@@ -8,9 +8,26 @@ import androidx.room.Update
 import com.example.tgparser.data.database.entity.MessageEntity
 import com.example.tgparser.data.database.relation.MessageWithMedia
 import kotlinx.coroutines.flow.Flow
+import androidx.paging.PagingSource
 
 @Dao
 interface MessageDao {
+
+    @Query("""
+    SELECT *
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+    AND version = (
+        SELECT MAX(versions.version)
+        FROM messages AS versions
+        WHERE versions.channelTelegramId = messages.channelTelegramId
+        AND versions.messageId = messages.messageId
+    )
+    ORDER BY messageId
+""")
+    fun pagingLatestMessages(
+        channelTelegramId: String
+    ): PagingSource<Int, MessageWithMedia>
 
     @Query("""
         SELECT *
