@@ -7,3 +7,6 @@
 .externalNativeBuild
 .cxx
 .idea/
+
+# Go build artifacts
+go-tdlib/tgparser
