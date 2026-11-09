@@ -23,7 +23,7 @@ interface MessageDao {
         WHERE versions.channelTelegramId = messages.channelTelegramId
         AND versions.messageId = messages.messageId
     )
-    ORDER BY messageId
+    ORDER BY messageId DESC
 """)
     fun pagingLatestMessages(
         channelTelegramId: String
@@ -109,6 +109,47 @@ interface MessageDao {
         messageId: Int,
         version: Int
     ): MessageWithMedia?
+
+    @Query("""
+        SELECT COUNT(*)
+        FROM messages
+        WHERE channelTelegramId = :channelTelegramId
+        AND messageId = :messageId
+    """)
+    suspend fun countVersions(
+        channelTelegramId: String,
+        messageId: Int
+    ): Int
+
+    @Query("""
+        SELECT MAX(messageId)
+        FROM messages
+        WHERE channelTelegramId = :channelTelegramId
+        AND version = (
+            SELECT MAX(v.version)
+            FROM messages AS v
+            WHERE v.channelTelegramId = messages.channelTelegramId
+            AND v.messageId = messages.messageId
+        )
+    """)
+    suspend fun getMaxMessageId(
+        channelTelegramId: String
+    ): Int?
+
+    @Query("""
+        SELECT COUNT(*)
+        FROM messages
+        WHERE channelTelegramId = :channelTelegramId
+        AND version = (
+            SELECT MAX(v.version)
+            FROM messages AS v
+            WHERE v.channelTelegramId = messages.channelTelegramId
+            AND v.messageId = messages.messageId
+        )
+    """)
+    suspend fun countLatestMessages(
+        channelTelegramId: String
+    ): Int
 
     @Insert(
         onConflict = OnConflictStrategy.ABORT

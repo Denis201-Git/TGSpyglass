@@ -92,6 +92,59 @@ object MessageRepository {
             .first()
     }
 
+    fun getMessagesPager(
+        channelTelegramId: String
+    ): Flow<PagingData<Message>> {
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                prefetchDistance = 10,
+                initialLoadSize = 20,
+                enablePlaceholders = false
+            )
+        ) {
+            messageDao.pagingLatestMessages(channelTelegramId)
+        }.flow.map { pagingData ->
+            pagingData.map { messageWithMedia ->
+                messageWithMedia.toModel()
+            }
+        }
+    }
+
+    suspend fun countVersions(
+        channelTelegramId: String,
+        messageId: Int
+    ): Int {
+
+        val cacheKey = channelTelegramId to messageId
+        versionCountsCache[cacheKey]?.let { return it }
+
+        return messageDao.countVersions(
+            channelTelegramId = channelTelegramId,
+            messageId = messageId
+        ).also {
+            versionCountsCache[cacheKey] = it
+        }
+    }
+
+    suspend fun getMaxMessageId(
+        channelTelegramId: String
+    ): Int? {
+
+        return messageDao.getMaxMessageId(channelTelegramId)
+    }
+
+    suspend fun countLatestMessages(
+        channelTelegramId: String
+    ): Int {
+
+        return messageDao.countLatestMessages(channelTelegramId)
+    }
+
+    private val versionCountsCache =
+        mutableMapOf<Pair<String, Int>, Int>()
+
     suspend fun deleteMessages(
         channelTelegramId: String
     ) {
