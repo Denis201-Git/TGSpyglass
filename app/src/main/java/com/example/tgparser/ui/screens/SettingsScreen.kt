@@ -1,6 +1,8 @@
 package com.example.tgparser.ui.screens
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Language
@@ -19,18 +21,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import com.example.tgparser.ui.theme.AppTheme
 import com.example.tgparser.viewmodel.ThemeViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.RadioButton
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import com.example.tgparser.R
 import com.example.tgparser.viewmodel.LanguageViewModel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.MaterialTheme

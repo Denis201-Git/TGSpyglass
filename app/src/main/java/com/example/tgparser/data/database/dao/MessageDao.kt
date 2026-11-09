@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.tgparser.data.database.entity.MessageEntity
 import com.example.tgparser.data.database.relation.MessageWithMedia
-import kotlinx.coroutines.flow.Flow
 import androidx.paging.PagingSource
 
 @Dao
@@ -28,32 +27,6 @@ interface MessageDao {
     fun pagingLatestMessages(
         channelTelegramId: String
     ): PagingSource<Int, MessageWithMedia>
-
-    @Query("""
-        SELECT *
-        FROM messages
-        WHERE channelTelegramId = :channelTelegramId
-        AND version = (
-            SELECT MAX(m2.version)
-            FROM messages AS m2
-            WHERE m2.channelTelegramId = messages.channelTelegramId
-            AND m2.messageId = messages.messageId
-        )
-        ORDER BY messageId
-    """)
-    fun observeLatestMessages(
-        channelTelegramId: String
-    ): Flow<List<MessageWithMedia>>
-
-    @Query("""
-    SELECT *
-    FROM messages
-    WHERE channelTelegramId = :channelTelegramId
-    ORDER BY messageId, version
-""")
-    fun observeAllMessages(
-        channelTelegramId: String
-    ): Flow<List<MessageWithMedia>>
 
     @Query("""
     SELECT *
@@ -78,10 +51,10 @@ interface MessageDao {
         AND messageId = :messageId
         ORDER BY version
     """)
-    fun observeMessageVersions(
+    suspend fun getMessageVersions(
         channelTelegramId: String,
         messageId: Int
-    ): Flow<List<MessageWithMedia>>
+    ): List<MessageWithMedia>
 
     @Query("""
         SELECT *
@@ -119,36 +92,6 @@ interface MessageDao {
     suspend fun countVersions(
         channelTelegramId: String,
         messageId: Int
-    ): Int
-
-    @Query("""
-        SELECT MAX(messageId)
-        FROM messages
-        WHERE channelTelegramId = :channelTelegramId
-        AND version = (
-            SELECT MAX(v.version)
-            FROM messages AS v
-            WHERE v.channelTelegramId = messages.channelTelegramId
-            AND v.messageId = messages.messageId
-        )
-    """)
-    suspend fun getMaxMessageId(
-        channelTelegramId: String
-    ): Int?
-
-    @Query("""
-        SELECT COUNT(*)
-        FROM messages
-        WHERE channelTelegramId = :channelTelegramId
-        AND version = (
-            SELECT MAX(v.version)
-            FROM messages AS v
-            WHERE v.channelTelegramId = messages.channelTelegramId
-            AND v.messageId = messages.messageId
-        )
-    """)
-    suspend fun countLatestMessages(
-        channelTelegramId: String
     ): Int
 
     @Insert(

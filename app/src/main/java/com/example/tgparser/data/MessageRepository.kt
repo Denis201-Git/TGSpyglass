@@ -13,7 +13,6 @@ import com.example.tgparser.model.toMedia
 import com.example.tgparser.utils.currentIsoTimestamp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.first
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -30,43 +29,6 @@ object MessageRepository {
     private val mediaDao
         get() = database.mediaDao()
 
-    fun observeMessages(
-        channelTelegramId: String
-    ): Flow<List<Message>> {
-
-        return messageDao
-            .observeLatestMessages(channelTelegramId)
-            .map { messagesWithMedia ->
-                messagesWithMedia.map { it.toModel() }
-            }
-    }
-
-    fun observeAllMessageVersions(
-        channelTelegramId: String
-    ): Flow<List<Message>> {
-
-        return messageDao
-            .observeAllMessages(channelTelegramId)
-            .map { messagesWithMedia ->
-                messagesWithMedia.map { it.toModel() }
-            }
-    }
-
-    fun observeMessageVersions(
-        channelTelegramId: String,
-        messageId: Int
-    ): Flow<List<Message>> {
-
-        return messageDao
-            .observeMessageVersions(
-                channelTelegramId = channelTelegramId,
-                messageId = messageId
-            )
-            .map { messagesWithMedia ->
-                messagesWithMedia.map { it.toModel() }
-            }
-    }
-
     suspend fun getMessages(
         channelTelegramId: String
     ): List<Message> {
@@ -82,14 +44,11 @@ object MessageRepository {
     ): List<Message> {
 
         return messageDao
-            .observeMessageVersions(
+            .getMessageVersions(
                 channelTelegramId = channelTelegramId,
                 messageId = messageId
             )
-            .map { messagesWithMedia ->
-                messagesWithMedia.map { it.toModel() }
-            }
-            .first()
+            .map { it.toModel() }
     }
 
     fun getMessagesPager(
@@ -126,20 +85,6 @@ object MessageRepository {
         ).also {
             versionCountsCache[cacheKey] = it
         }
-    }
-
-    suspend fun getMaxMessageId(
-        channelTelegramId: String
-    ): Int? {
-
-        return messageDao.getMaxMessageId(channelTelegramId)
-    }
-
-    suspend fun countLatestMessages(
-        channelTelegramId: String
-    ): Int {
-
-        return messageDao.countLatestMessages(channelTelegramId)
     }
 
     private val versionCountsCache =

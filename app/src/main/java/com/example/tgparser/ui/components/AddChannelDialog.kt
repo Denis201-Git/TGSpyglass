@@ -1,6 +1,8 @@
 package com.example.tgparser.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
@@ -19,10 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.example.tgparser.ui.localization.LocalStrings
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.CircularProgressIndicator
 import com.example.tgparser.utils.formatTelegramLink
-import com.example.tgparser.data.MessageRepository
 import com.example.tgparser.data.ParserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +43,6 @@ import com.example.tgparser.data.ParserState
 import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.ChannelRepository
 import com.example.tgparser.data.AppScope
-import com.example.tgparser.model.toMessage
 import com.example.tgparser.utils.currentIsoTimestamp
 
 @Composable
