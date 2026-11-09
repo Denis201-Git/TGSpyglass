@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Settings
+import com.example.tgparser.ui.components.AppIcons
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -44,7 +42,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import com.example.tgparser.data.ChannelUpdater
-import androidx.compose.material.icons.outlined.Refresh
 import com.example.tgparser.data.AppSnackbarManager
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -191,7 +188,7 @@ fun ChannelsScreen(
 
                             Icon(
 
-                                imageVector = Icons.Outlined.Settings,
+                                imageVector = AppIcons.Settings(),
 
                                 contentDescription = strings.settings
 
@@ -216,7 +213,7 @@ fun ChannelsScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Refresh,
+                            imageVector = AppIcons.Refresh(),
                             contentDescription = "Refresh"
                         )
                     }
@@ -240,7 +237,7 @@ fun ChannelsScreen(
 
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Add,
+                            imageVector = AppIcons.Add(),
                             contentDescription = strings.addChannel
                         )
                     }

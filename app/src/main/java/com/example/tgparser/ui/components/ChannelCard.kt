@@ -2,9 +2,7 @@ package com.example.tgparser.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Refresh
+import com.example.tgparser.ui.components.AppIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -100,7 +98,7 @@ fun ChannelCard(
                         onClick = onRefreshClick
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Refresh,
+                            imageVector = AppIcons.Refresh(),
                             contentDescription = "Refresh channel"
                         )
                     }
@@ -119,7 +117,7 @@ fun ChannelCard(
                         onClick = onDeleteClick
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Delete,
+                            imageVector = AppIcons.Delete(),
                             contentDescription = "Delete channel"
                         )
                     }

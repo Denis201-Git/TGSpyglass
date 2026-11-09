@@ -16,14 +16,11 @@ import androidx.core.net.toUri
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
+import com.example.tgparser.ui.components.AppIcons
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material.icons.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.IconButton
 
 @Composable
@@ -124,7 +121,7 @@ fun MessageCard(
 
                     Icon(
 
-                        imageVector = Icons.Outlined.KeyboardArrowLeft,
+                        imageVector = AppIcons.KeyboardArrowLeft(),
 
                         contentDescription = "Previous version",
 
@@ -160,7 +157,7 @@ fun MessageCard(
 
                     Icon(
 
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        imageVector = AppIcons.KeyboardArrowRight(),
 
                         contentDescription = "Next version",
 
@@ -180,7 +177,7 @@ fun MessageCard(
 
                 Icon(
 
-                    imageVector = Icons.Outlined.Delete,
+                    imageVector = AppIcons.Delete(),
 
                     contentDescription = "Deleted",
 

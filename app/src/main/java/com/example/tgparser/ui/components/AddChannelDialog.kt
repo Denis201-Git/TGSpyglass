@@ -5,8 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import com.example.tgparser.ui.components.AppIcons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -200,7 +199,7 @@ fun AddChannelDialog(
 
                 Icon(
 
-                    imageVector = Icons.Default.Close,
+                    imageVector = AppIcons.Close(),
 
                     contentDescription = null
 

@@ -12,7 +12,7 @@ if ! command -v gomobile &>/dev/null; then
 fi
 
 gomobile bind \
-    -target=android \
+    -target=android/arm64,android/amd64 \
     -androidapi 26 \
     -o ../app/libs/mobile.aar \
     ./mobile

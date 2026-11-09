@@ -4,17 +4,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.VideoLibrary
+import com.example.tgparser.ui.components.AppIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import com.example.tgparser.utils.AppInfo
-import androidx.compose.material.icons.outlined.Code
 import android.content.Intent
 import androidx.core.net.toUri
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.RadioButton
 import androidx.compose.ui.unit.dp
 import com.example.tgparser.viewmodel.LanguageViewModel
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.MaterialTheme
 import com.example.tgparser.ui.localization.LocalStrings
 
@@ -72,7 +65,7 @@ fun SettingsScreen(
                     ) {
 
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
+                            AppIcons.ArrowBack(),
                             contentDescription = "Back"
                         )
 
@@ -110,7 +103,7 @@ fun SettingsScreen(
                     leadingContent = {
 
                         Icon(
-                            imageVector = Icons.Outlined.Palette,
+                            imageVector = AppIcons.Palette(),
                             contentDescription = null
                         )
 
@@ -145,7 +138,7 @@ fun SettingsScreen(
                     leadingContent = {
 
                         Icon(
-                            imageVector = Icons.Outlined.Language,
+                            imageVector = AppIcons.Language(),
                             contentDescription = null
                         )
 
@@ -177,7 +170,7 @@ fun SettingsScreen(
                     leadingContent = {
 
                         Icon(
-                            imageVector = Icons.Outlined.VideoLibrary,
+                            imageVector = AppIcons.VideoLibrary(),
                             contentDescription = null
                         )
 
@@ -210,7 +203,7 @@ fun SettingsScreen(
                     leadingContent = {
 
                         Icon(
-                            imageVector = Icons.Outlined.Settings,
+                            imageVector = AppIcons.Settings(),
                             contentDescription = null
                         )
 
@@ -232,7 +225,7 @@ fun SettingsScreen(
                     leadingContent = {
 
                         Icon(
-                            imageVector = Icons.Outlined.Code,
+                            imageVector = AppIcons.Code(),
                             contentDescription = null
                         )
 
@@ -302,7 +295,7 @@ fun SettingsScreen(
                         if (currentLanguage == language.second) {
 
                             Icon(
-                                imageVector = Icons.Filled.Check,
+                                imageVector = AppIcons.Check(),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
