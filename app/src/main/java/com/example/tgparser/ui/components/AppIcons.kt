@@ -19,4 +19,6 @@ object AppIcons {
     @Composable fun Language(): ImageVector = ImageVector.vectorResource(R.drawable.ic_language)
     @Composable fun VideoLibrary(): ImageVector = ImageVector.vectorResource(R.drawable.ic_video_library)
     @Composable fun Code(): ImageVector = ImageVector.vectorResource(R.drawable.ic_code)
+    @Composable fun Play(): ImageVector = ImageVector.vectorResource(R.drawable.ic_play)
+    @Composable fun File(): ImageVector = ImageVector.vectorResource(R.drawable.ic_file)
 }

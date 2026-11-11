@@ -14,6 +14,7 @@ fi
 gomobile bind \
     -target=android/arm64,android/amd64 \
     -androidapi 26 \
+    -ldflags "-s -w" \
     -o ../app/libs/mobile.aar \
     ./mobile
 

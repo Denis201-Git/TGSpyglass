@@ -44,8 +44,22 @@ object EnglishStrings : AppStrings {
 
     override val photosVideosFiles = "Photos, videos and files"
 
+    override val photos = "Photos"
+
+    override val videos = "Videos"
+
+    override val files = "Files"
+
     override val version = "Version"
 
     override val appName = "TGParser"
+
+    override val copy = "Copy"
+
+    override val copied = "Copied to clipboard"
+
+    override val videoPlayerNotFound = "No app found to play this video"
+
+    override val close = "Close"
 
 }

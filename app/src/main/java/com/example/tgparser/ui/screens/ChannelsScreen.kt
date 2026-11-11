@@ -117,7 +117,10 @@ fun ChannelsScreen(
         if (ParserState.isBusy || isRefreshing) {
             if (ParserState.isBusy) {
                 scope.launch {
-                    AppSnackbarManager.show(strings.parserBusy)
+                    AppSnackbarManager.show(
+                    strings.parserBusy,
+                    isError = true
+                )
                 }
             }
             return
@@ -138,7 +141,10 @@ fun ChannelsScreen(
     fun refreshChannel(channelId: String) {
         if (ParserState.isBusy) {
             scope.launch {
-                AppSnackbarManager.show(strings.parserBusy)
+                AppSnackbarManager.show(
+                    strings.parserBusy,
+                    isError = true
+                )
             }
             return
         }
@@ -227,7 +233,10 @@ fun ChannelsScreen(
                         onClick = {
                             if (ParserState.isBusy) {
                                 scope.launch {
-                                    AppSnackbarManager.show(strings.parserBusy)
+                                    AppSnackbarManager.show(
+                    strings.parserBusy,
+                    isError = true
+                )
                                 }
                                 return@FloatingActionButton
                             }

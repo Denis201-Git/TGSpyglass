@@ -88,7 +88,10 @@ fun AddChannelDialog(
 
         if (ParserState.isBusy) {
             AppScope.scope.launch {
-                AppSnackbarManager.show(strings.parserBusy)
+                AppSnackbarManager.show(
+                    strings.parserBusy,
+                    isError = true
+                )
             }
             return
         }

@@ -44,8 +44,22 @@ object RussianStrings : AppStrings {
 
     override val photosVideosFiles = "Фото, видео и файлы"
 
+    override val photos = "Фото"
+
+    override val videos = "Видео"
+
+    override val files = "Файлы"
+
     override val version = "Версия"
 
     override val appName = "TGParser"
+
+    override val copy = "Копировать"
+
+    override val copied = "Скопировано в буфер обмена"
+
+    override val videoPlayerNotFound = "Не найдено приложение для воспроизведения видео"
+
+    override val close = "Закрыть"
 
 }

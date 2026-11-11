@@ -44,8 +44,22 @@ interface AppStrings {
 
     val photosVideosFiles: String
 
+    val photos: String
+
+    val videos: String
+
+    val files: String
+
     val version: String
 
     val appName: String
+
+    val copy: String
+
+    val copied: String
+
+    val videoPlayerNotFound: String
+
+    val close: String
 
 }

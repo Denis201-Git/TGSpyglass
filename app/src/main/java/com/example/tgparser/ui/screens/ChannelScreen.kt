@@ -32,12 +32,14 @@ import androidx.paging.compose.itemKey
 import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.MessageRepository
 import com.example.tgparser.data.ParserState
+import com.example.tgparser.data.preferences.MediaSettings
 import com.example.tgparser.model.Message
 import com.example.tgparser.ui.components.EmptyMessages
 import com.example.tgparser.ui.components.MessageCard
 import com.example.tgparser.ui.localization.LocalStrings
 import com.example.tgparser.viewmodel.ChannelViewModel
 import com.example.tgparser.viewmodel.ChannelViewModelFactory
+import com.example.tgparser.viewmodel.MediaSettingsViewModel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -58,13 +60,19 @@ fun ChannelScreen(
 
     val lazyMessages = viewModel.messages.collectAsLazyPagingItems()
     val strings = LocalStrings.current
+
+    val mediaSettingsViewModel: MediaSettingsViewModel = viewModel()
+    val mediaSettings by mediaSettingsViewModel.settings.collectAsState()
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
     fun refreshChannel() {
         if (ParserState.isBusy) {
             scope.launch {
-                AppSnackbarManager.show(strings.parserBusy)
+                AppSnackbarManager.show(
+                    strings.parserBusy,
+                    isError = true
+                )
             }
             return
         }
@@ -156,6 +164,7 @@ fun ChannelScreen(
                             VersionedMessageCard(
                                 channelId = channelId,
                                 latestMessage = latestMessage,
+                                mediaSettings = mediaSettings,
                                 displayedVersion = viewModel.displayedVersions[latestMessage.messageId],
                                 onVersionChange = { version ->
                                     viewModel.onVersionChange(
@@ -206,6 +215,7 @@ fun ChannelScreen(
 private fun VersionedMessageCard(
     channelId: String,
     latestMessage: Message,
+    mediaSettings: MediaSettings,
     displayedVersion: Int?,
     onVersionChange: (Int) -> Unit
 ) {
@@ -240,6 +250,7 @@ private fun VersionedMessageCard(
     MessageCard(
         message = message,
         versionsCount = versionsCount,
+        mediaSettings = mediaSettings,
         onPreviousVersion = {
             if (message.version > 1) {
                 onVersionChange(message.version - 1)

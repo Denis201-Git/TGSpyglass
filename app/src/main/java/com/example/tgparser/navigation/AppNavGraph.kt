@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tgparser.data.AppSnackbarManager
+import com.example.tgparser.data.AppSnackbarVisuals
 import com.example.tgparser.ui.screens.ChannelScreen
 import com.example.tgparser.ui.screens.ChannelsScreen
 import com.example.tgparser.ui.screens.SettingsScreen
@@ -153,6 +154,8 @@ fun AppNavGraph() {
                 }
             )
 
+            val isError = (data.visuals as? AppSnackbarVisuals)?.isError ?: true
+
             SwipeToDismissBox(
                 state = dismissState,
                 backgroundContent = {},
@@ -160,8 +163,16 @@ fun AppNavGraph() {
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    color =
+                        if (isError)
+                            MaterialTheme.colorScheme.errorContainer
+                        else
+                            MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor =
+                        if (isError)
+                            MaterialTheme.colorScheme.onErrorContainer
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant,
                     tonalElevation = 6.dp,
                     shadowElevation = 6.dp,
                     modifier = Modifier.fillMaxWidth()

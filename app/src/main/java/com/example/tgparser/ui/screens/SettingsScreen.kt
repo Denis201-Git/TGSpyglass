@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.RadioButton
 import androidx.compose.ui.unit.dp
 import com.example.tgparser.viewmodel.LanguageViewModel
+import com.example.tgparser.viewmodel.MediaSettingsViewModel
 import androidx.compose.material3.MaterialTheme
 import com.example.tgparser.ui.localization.LocalStrings
 
@@ -33,10 +34,12 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     themeViewModel: ThemeViewModel = viewModel(),
     languageViewModel: LanguageViewModel = viewModel(),
+    mediaSettingsViewModel: MediaSettingsViewModel = viewModel(),
 ) {
 
     val currentTheme by themeViewModel.theme.collectAsState()
     val currentLanguage by languageViewModel.language.collectAsState()
+    val currentMediaSettings by mediaSettingsViewModel.settings.collectAsState()
     val strings = LocalStrings.current
 
     var showThemeDialog by remember {
@@ -44,6 +47,10 @@ fun SettingsScreen(
     }
 
     var showLanguageDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var showMediaDialog by remember {
         mutableStateOf(false)
     }
 
@@ -173,6 +180,12 @@ fun SettingsScreen(
                             imageVector = AppIcons.VideoLibrary(),
                             contentDescription = null
                         )
+
+                    },
+
+                    modifier = Modifier.clickable {
+
+                        showMediaDialog = true
 
                     }
 
@@ -391,6 +404,103 @@ fun SettingsScreen(
                 )
 
             }
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+        }
+
+    }
+
+    if (showMediaDialog) {
+
+        ModalBottomSheet(
+            onDismissRequest = {
+                showMediaDialog = false
+            }
+        ) {
+
+            Text(
+                text = strings.downloadMedia,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            ListItem(
+
+                headlineContent = {
+                    Text(strings.photos)
+                },
+
+                trailingContent = {
+
+                    Checkbox(
+                        checked = currentMediaSettings.photos,
+                        onCheckedChange = {
+                            mediaSettingsViewModel.setPhotos(it)
+                        }
+                    )
+
+                },
+
+                modifier = Modifier.clickable {
+                    mediaSettingsViewModel.setPhotos(
+                        !currentMediaSettings.photos
+                    )
+                }
+
+            )
+
+            ListItem(
+
+                headlineContent = {
+                    Text(strings.videos)
+                },
+
+                trailingContent = {
+
+                    Checkbox(
+                        checked = currentMediaSettings.videos,
+                        onCheckedChange = {
+                            mediaSettingsViewModel.setVideos(it)
+                        }
+                    )
+
+                },
+
+                modifier = Modifier.clickable {
+                    mediaSettingsViewModel.setVideos(
+                        !currentMediaSettings.videos
+                    )
+                }
+
+            )
+
+            ListItem(
+
+                headlineContent = {
+                    Text(strings.files)
+                },
+
+                trailingContent = {
+
+                    Checkbox(
+                        checked = currentMediaSettings.files,
+                        onCheckedChange = {
+                            mediaSettingsViewModel.setFiles(it)
+                        }
+                    )
+
+                },
+
+                modifier = Modifier.clickable {
+                    mediaSettingsViewModel.setFiles(
+                        !currentMediaSettings.files
+                    )
+                }
+
+            )
 
             Spacer(
                 modifier = Modifier.height(16.dp)

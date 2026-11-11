@@ -31,6 +31,9 @@ const (
 	classLinkImage     = "link_preview_image"
 	classLinkTitle     = "link_preview_title"
 	classLinkDesc      = "link_preview_description"
+	classDocumentWrap  = "tgme_widget_message_document_wrap"
+	classDocumentTitle = "tgme_widget_message_document_title"
+	classDocumentExtra = "tgme_widget_message_document_extra"
 	classChannelTitle  = "tgme_channel_info_header_title"
 	classChannelUser   = "tgme_channel_info_header_username"
 
@@ -43,6 +46,7 @@ const (
 	mediaTypePhoto       = "photo"
 	mediaTypeVideo       = "video"
 	mediaTypeLinkPreview = "link_preview"
+	mediaTypeFile        = "file"
 
 	userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
@@ -355,6 +359,25 @@ func extractMedia(msgNode *html.Node) []Media {
 			URL:      videoURL,
 			ThumbURL: thumbURL,
 			Duration: duration,
+		})
+	}
+
+	for _, node := range findChildren(msgNode, "a", classDocumentWrap) {
+		var title string
+		if titleNode := findChild(node, "div", classDocumentTitle); titleNode != nil {
+			title = getText(titleNode)
+		}
+
+		var desc string
+		if descNode := findChild(node, "div", classDocumentExtra); descNode != nil {
+			desc = getText(descNode)
+		}
+
+		media = append(media, Media{
+			Type:  mediaTypeFile,
+			URL:   getAttr(node, attrHref),
+			Title: title,
+			Desc:  desc,
 		})
 	}
 
