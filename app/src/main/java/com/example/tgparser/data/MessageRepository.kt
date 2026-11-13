@@ -51,6 +51,29 @@ object MessageRepository {
             .map { it.toModel() }
     }
 
+    suspend fun getMaxMessageId(
+        channelTelegramId: String
+    ): Int? {
+
+        return messageDao.getMaxMessageId(channelTelegramId)
+    }
+
+    suspend fun countMessages(
+        channelTelegramId: String
+    ): Int {
+
+        return messageDao.countMessages(channelTelegramId)
+    }
+
+    suspend fun getLatestChannelMessage(
+        channelTelegramId: String
+    ): Message? {
+
+        return messageDao
+            .getLatestChannelMessage(channelTelegramId)
+            ?.toModel()
+    }
+
     fun getMessagesPager(
         channelTelegramId: String
     ): Flow<PagingData<Message>> {
@@ -141,6 +164,10 @@ object MessageRepository {
         parserMessages: List<ParserMessage>
     ) {
 
+        if (parserMessages.isEmpty()) {
+            return
+        }
+
         val parserIds = parserMessages
             .map { it.messageId }
             .toSet()
@@ -205,21 +232,23 @@ object MessageRepository {
             }
         }
 
-        val currentMessages = messageDao.getLatestMessages(
-            channelTelegramId = channelTelegramId
+        val currentMessages = messageDao.getLatestMessagesInRange(
+            channelTelegramId = channelTelegramId,
+            minMessageId = parserMessages.minOf { it.messageId },
+            maxMessageId = parserMessages.maxOf { it.messageId }
         )
 
-        currentMessages.forEach { messageWithMedia ->
-
-            val message = messageWithMedia.toModel()
+        currentMessages.forEach { message ->
 
             if (
                 !message.isDeleted &&
                 message.messageId !in parserIds
             ) {
-                markDeleted(messageWithMedia.message)
+                markDeleted(message)
             }
         }
+
+        versionCountsCache.keys.removeAll { it.first == channelTelegramId }
     }
 
     private suspend fun insertMessage(
@@ -352,7 +381,27 @@ object MessageRepository {
             thumbUrl = thumbUrl,
             duration = duration,
             title = title,
-            description = description
+            description = description,
+            notSupported = notSupported
+        )
+    }
+
+    private fun MessageEntity.toModel(): Message {
+
+        return Message(
+            id = id,
+            channelTelegramId = channelTelegramId,
+            messageId = messageId,
+            version = version,
+            text = text,
+            publishedAt = publishedAt,
+            savedAt = savedAt,
+            isEdited = isEdited,
+            isDeleted = isDeleted,
+            views = views,
+            media = emptyList(),
+            author = author,
+            url = url
         )
     }
 
@@ -376,7 +425,8 @@ object MessageRepository {
                     thumbUrl = mediaEntity.thumbUrl,
                     duration = mediaEntity.duration,
                     title = mediaEntity.title,
-                    description = mediaEntity.description
+                    description = mediaEntity.description,
+                    notSupported = mediaEntity.notSupported
                 )
             },
             author = message.author,

@@ -51,6 +51,9 @@ data class ParserMedia(
     val title: String? = null,
 
     @SerialName("description")
-    val description: String? = null
+    val description: String? = null,
+
+    @SerialName("not_supported")
+    val notSupported: Boolean = false
 
 )

@@ -106,7 +106,10 @@ private fun VideoPreview(
             .fillMaxWidth()
             .padding(top = 10.dp)
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .then(
+                if (media.notSupported) Modifier
+                else Modifier.clickable(onClick = onClick)
+            )
     ) {
 
         if (thumb.isNotBlank()) {
@@ -133,21 +136,44 @@ private fun VideoPreview(
 
         }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center
-        ) {
+        if (media.notSupported) {
 
-            Icon(
-                imageVector = AppIcons.Play(),
-                contentDescription = "Play",
-                tint = Color.White,
-                modifier = Modifier.size(32.dp)
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.45f))
             )
+
+            Text(
+                text = "Media is too big",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color.Black.copy(alpha = 0.65f))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+
+        } else {
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector = AppIcons.Play(),
+                    contentDescription = "Play",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+
+            }
 
         }
 

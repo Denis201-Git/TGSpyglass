@@ -115,7 +115,7 @@ fun MessageCard(
 
             "video" -> {
 
-                if (!openVideo(context, media.url)) {
+                if (!media.notSupported && !openVideo(context, media.url)) {
 
                     scope.launch {
                         AppSnackbarManager.show(strings.videoPlayerNotFound, isError = true)

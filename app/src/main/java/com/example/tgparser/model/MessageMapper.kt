@@ -42,7 +42,9 @@ fun ParserMedia.toMedia(): Media {
 
         title = title,
 
-        description = description
+        description = description,
+
+        notSupported = notSupported
 
     )
 

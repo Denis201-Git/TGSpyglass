@@ -15,27 +15,33 @@ import (
 )
 
 const (
-	classMessageWrap   = "tgme_widget_message_wrap"
-	classMessage       = "tgme_widget_message"
-	classMessageText   = "tgme_widget_message_text"
-	classMessageViews  = "tgme_widget_message_views"
-	classMessageOwner  = "tgme_widget_message_owner_name"
-	classMessageDate   = "tgme_widget_message_date"
-	classMessagesMore  = "tme_messages_more"
-	classPhotoWrap     = "tgme_widget_message_photo_wrap"
-	classVideoPlayer   = "tgme_widget_message_video_player"
-	classVideoThumb    = "tgme_widget_message_video_thumb"
-	classVideoDuration = "message_video_duration"
-	classVideoTag      = "tgme_widget_message_video"
-	classLinkPreview   = "tgme_widget_message_link_preview"
-	classLinkImage     = "link_preview_image"
-	classLinkTitle     = "link_preview_title"
-	classLinkDesc      = "link_preview_description"
-	classDocumentWrap  = "tgme_widget_message_document_wrap"
-	classDocumentTitle = "tgme_widget_message_document_title"
-	classDocumentExtra = "tgme_widget_message_document_extra"
-	classChannelTitle  = "tgme_channel_info_header_title"
-	classChannelUser   = "tgme_channel_info_header_username"
+	classMessageWrap     = "tgme_widget_message_wrap"
+	classMessage         = "tgme_widget_message"
+	classMessageText     = "tgme_widget_message_text"
+	classMessageTextJS   = "js-message_text"
+	classMessageReply    = "tgme_widget_message_reply"
+	classServiceMessage  = "service_message"
+	classServiceWidget   = "tgme_widget_message_service"
+	classNoMessagesFound = "tme_no_messages_found"
+	classMessageViews    = "tgme_widget_message_views"
+	classMessageOwner    = "tgme_widget_message_owner_name"
+	classMessageDate     = "tgme_widget_message_date"
+	classMessagesMore    = "tme_messages_more"
+	classPhotoWrap       = "tgme_widget_message_photo_wrap"
+	classVideoPlayer     = "tgme_widget_message_video_player"
+	classVideoThumb      = "tgme_widget_message_video_thumb"
+	classVideoDuration   = "message_video_duration"
+	classVideoTag        = "tgme_widget_message_video"
+	classVideoBlocked    = "not_supported"
+	classLinkPreview     = "tgme_widget_message_link_preview"
+	classLinkImage       = "link_preview_image"
+	classLinkTitle       = "link_preview_title"
+	classLinkDesc        = "link_preview_description"
+	classDocumentWrap    = "tgme_widget_message_document_wrap"
+	classDocumentTitle   = "tgme_widget_message_document_title"
+	classDocumentExtra   = "tgme_widget_message_document_extra"
+	classChannelTitle    = "tgme_channel_info_header_title"
+	classChannelUser     = "tgme_channel_info_header_username"
 
 	attrBefore   = "data-before"
 	attrHref     = "href"
@@ -69,14 +75,28 @@ func ParseWithInfo(url string) (*ParseResult, error) {
 	return parseResult(url)
 }
 
+func ParseWithInfoUntil(url string, latestKnownMessageID int, pageLimit int) (*ParseResult, error) {
+	return parseResultUntil(url, latestKnownMessageID, pageLimit)
+}
+
 func parseResult(url string) (*ParseResult, error) {
+	return parseResultUntil(url, 0, maxPages)
+}
+
+func parseResultUntil(url string, latestKnownMessageID int, pageLimit int) (*ParseResult, error) {
+	if pageLimit <= 0 || pageLimit > maxPages {
+		pageLimit = maxPages
+	}
+
 	result := &ParseResult{
 		Messages: make([]Message, 0),
 	}
 
 	var before string
 
-	for page := 0; page < maxPages; page++ {
+	seen := make(map[string]bool)
+
+	for page := 0; page < pageLimit; page++ {
 
 		pageURL := url
 		if before != "" {
@@ -85,11 +105,12 @@ func parseResult(url string) (*ParseResult, error) {
 
 		doc, err := fetchPage(pageURL)
 		if err != nil {
-			if errors.Is(err, ErrChannelNotFound) {
-				return nil, ErrChannelNotFound
+			if page == 0 {
+				return nil, err
 			}
 
-			return nil, err
+			// A failed deep-history page must not discard already parsed posts.
+			break
 		}
 
 		if page == 0 {
@@ -102,17 +123,75 @@ func parseResult(url string) (*ParseResult, error) {
 			return nil, ErrChannelNotFound
 		}
 
-		result.Messages = append(result.Messages, messages...)
+		for _, message := range messages {
+			if seen[message.ID] {
+				continue
+			}
+
+			seen[message.ID] = true
+			result.Messages = append(result.Messages, message)
+		}
+
+		reachedKnown := containsKnownMessage(messages, latestKnownMessageID)
 
 		next := getBeforeID(doc)
-		if next == "" || next == before {
+		if reachedKnown || next == "" || next == before {
 			break
 		}
 
 		before = next
 	}
 
+	if result.Channel.ID == "" {
+		if len(result.Messages) > 0 {
+			result.Channel.ID = result.Messages[0].Channel
+		}
+
+		if result.Channel.ID == "" {
+			result.Channel.ID = channelFromURL(url)
+		}
+
+		if result.Channel.Username == "" && result.Channel.ID != "" {
+			result.Channel.Username = "@" + result.Channel.ID
+		}
+	}
+
 	return result, nil
+}
+
+func containsKnownMessage(messages []Message, latestKnownMessageID int) bool {
+	if latestKnownMessageID <= 0 {
+		return false
+	}
+
+	for _, message := range messages {
+		if message.MessageID <= latestKnownMessageID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func channelFromURL(rawURL string) string {
+	value := rawURL
+	if index := strings.IndexAny(value, "?#"); index >= 0 {
+		value = value[:index]
+	}
+
+	value = strings.TrimSuffix(value, "/")
+
+	parts := strings.Split(value, "/")
+	for index := len(parts) - 1; index >= 0; index-- {
+		part := strings.TrimSpace(parts[index])
+		if part == "" || part == "s" || strings.Contains(part, ".") || strings.Contains(part, ":") {
+			continue
+		}
+
+		return part
+	}
+
+	return ""
 }
 
 func parseMessages(url string) ([]Message, error) {
@@ -125,31 +204,56 @@ func parseMessages(url string) ([]Message, error) {
 }
 
 func fetchPage(pageURL string) (*html.Node, error) {
-	req, err := http.NewRequest("GET", pageURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("building request for %s: %w", pageURL, err)
-	}
-	req.Header.Set("User-Agent", userAgent)
+	const attempts = 3
 
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("getting %s: %w", pageURL, err)
-	}
-	defer resp.Body.Close()
+	var lastErr error
 
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, ErrChannelNotFound
+	for attempt := 0; attempt < attempts; attempt++ {
+		if attempt > 0 {
+			time.Sleep(time.Duration(attempt) * time.Second)
+		}
+
+		req, err := http.NewRequest("GET", pageURL, nil)
+		if err != nil {
+			return nil, fmt.Errorf("building request for %s: %w", pageURL, err)
+		}
+		req.Header.Set("User-Agent", userAgent)
+
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("getting %s: %w", pageURL, err)
+			continue
+		}
+
+		if resp.StatusCode == http.StatusNotFound {
+			resp.Body.Close()
+			return nil, ErrChannelNotFound
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			lastErr = fmt.Errorf("getting %s: %s", pageURL, resp.Status)
+			retry := resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500
+			resp.Body.Close()
+
+			if retry {
+				continue
+			}
+
+			return nil, lastErr
+		}
+
+		doc, err := html.Parse(resp.Body)
+		resp.Body.Close()
+
+		if err != nil {
+			lastErr = fmt.Errorf("parsing %s as HTML: %w", pageURL, err)
+			continue
+		}
+
+		return doc, nil
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("getting %s: %s", pageURL, resp.Status)
-	}
-
-	doc, err := html.Parse(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("parsing %s as HTML: %w", pageURL, err)
-	}
-	return doc, nil
+	return nil, lastErr
 }
 
 func getBeforeID(n *html.Node) string {
@@ -176,14 +280,34 @@ func extractMessages(n *html.Node) []Message {
 
 func visitMessages(n *html.Node, messages *[]Message) {
 	if n.Type == html.ElementNode && n.Data == "div" && hasClass(n, classMessageWrap) {
-		if msg := parseMessage(n); msg != nil {
-			*messages = append(*messages, *msg)
+		if !containsServiceMessage(n) {
+			if msg := parseMessage(n); msg != nil {
+				*messages = append(*messages, *msg)
+			}
 		}
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		visitMessages(c, messages)
 	}
+}
+
+func containsServiceMessage(n *html.Node) bool {
+	if n.Type == html.ElementNode {
+		if hasClass(n, classServiceMessage) ||
+			hasClass(n, classServiceWidget) ||
+			hasClass(n, classNoMessagesFound) {
+			return true
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if containsServiceMessage(c) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func hasClass(n *html.Node, class string) bool {
@@ -235,6 +359,42 @@ func findChildren(n *html.Node, tag string, class string) []*html.Node {
 	return results
 }
 
+func findMessageText(root *html.Node) *html.Node {
+	if text := findChild(root, "div", classMessageTextJS); text != nil {
+		return text
+	}
+
+	return findChildOutsideClass(root, "div", classMessageText, classMessageReply)
+}
+
+func findChildOutsideClass(n *html.Node, tag string, class string, excludedClass string) *html.Node {
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.ElementNode && hasClass(c, excludedClass) {
+			continue
+		}
+
+		if c.Type == html.ElementNode && c.Data == tag && hasClass(c, class) {
+			return c
+		}
+
+		if result := findChildOutsideClass(c, tag, class, excludedClass); result != nil {
+			return result
+		}
+	}
+
+	return nil
+}
+
+func isInsideClass(n *html.Node, class string) bool {
+	for parent := n.Parent; parent != nil; parent = parent.Parent {
+		if parent.Type == html.ElementNode && hasClass(parent, class) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func getText(n *html.Node) string {
 	var text strings.Builder
 	var traverse func(*html.Node)
@@ -269,18 +429,18 @@ func parseMessage(wrap *html.Node) *Message {
 	messageID, _ := strconv.Atoi(parts[1])
 
 	var text string
-	if textNode := findChild(msgNode, "div", classMessageText); textNode != nil {
+	if textNode := findMessageText(msgNode); textNode != nil {
 		text = getText(textNode)
 	}
 
-var date time.Time
-if dateLink := findChild(msgNode, "a", classMessageDate); dateLink != nil {
-	if timeNode := findChild(dateLink, "time", ""); timeNode != nil {
-		if datetime := getAttr(timeNode, attrDatetime); datetime != "" {
-			date, _ = time.Parse(time.RFC3339, datetime)
+	var date time.Time
+	if dateLink := findChild(msgNode, "a", classMessageDate); dateLink != nil {
+		if timeNode := findChild(dateLink, "time", ""); timeNode != nil {
+			if datetime := getAttr(timeNode, attrDatetime); datetime != "" {
+				date, _ = time.Parse(time.RFC3339, datetime)
+			}
 		}
 	}
-}
 
 	var views string
 	if viewsNode := findChild(msgNode, "span", classMessageViews); viewsNode != nil {
@@ -331,6 +491,10 @@ func extractMedia(msgNode *html.Node) []Media {
 	media := make([]Media, 0)
 
 	for _, node := range findChildren(msgNode, "a", classPhotoWrap) {
+		if isInsideClass(node, classMessageReply) {
+			continue
+		}
+
 		media = append(media, Media{
 			Type:     mediaTypePhoto,
 			URL:      getAttr(node, attrHref),
@@ -339,6 +503,10 @@ func extractMedia(msgNode *html.Node) []Media {
 	}
 
 	for _, node := range findChildren(msgNode, "a", classVideoPlayer) {
+		if isInsideClass(node, classMessageReply) {
+			continue
+		}
+
 		thumbURL := ""
 		if thumbNode := findChild(node, "i", classVideoThumb); thumbNode != nil {
 			thumbURL = extractBackgroundImage(getAttr(thumbNode, attrStyle))
@@ -355,14 +523,19 @@ func extractMedia(msgNode *html.Node) []Media {
 		}
 
 		media = append(media, Media{
-			Type:     mediaTypeVideo,
-			URL:      videoURL,
-			ThumbURL: thumbURL,
-			Duration: duration,
+			Type:         mediaTypeVideo,
+			URL:          videoURL,
+			ThumbURL:     thumbURL,
+			Duration:     duration,
+			NotSupported: hasClass(node, classVideoBlocked),
 		})
 	}
 
 	for _, node := range findChildren(msgNode, "a", classDocumentWrap) {
+		if isInsideClass(node, classMessageReply) {
+			continue
+		}
+
 		var title string
 		if titleNode := findChild(node, "div", classDocumentTitle); titleNode != nil {
 			title = getText(titleNode)
@@ -382,6 +555,10 @@ func extractMedia(msgNode *html.Node) []Media {
 	}
 
 	for _, node := range findChildren(msgNode, "a", classLinkPreview) {
+		if isInsideClass(node, classMessageReply) {
+			continue
+		}
+
 		thumbURL := ""
 		if imgNode := findChild(node, "i", classLinkImage); imgNode != nil {
 			thumbURL = extractBackgroundImage(getAttr(imgNode, attrStyle))

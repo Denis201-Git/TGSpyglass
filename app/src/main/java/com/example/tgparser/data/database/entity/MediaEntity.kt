@@ -36,5 +36,7 @@ data class MediaEntity(
 
     val title: String?,
 
-    val description: String?
+    val description: String?,
+
+    val notSupported: Boolean = false
 )

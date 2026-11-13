@@ -42,6 +42,8 @@ data class Media(
 
     val title: String? = null,
 
-    val description: String? = null
+    val description: String? = null,
+
+    val notSupported: Boolean = false
 
 )

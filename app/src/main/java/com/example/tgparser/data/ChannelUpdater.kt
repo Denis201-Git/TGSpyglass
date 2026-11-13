@@ -25,7 +25,14 @@ object ChannelUpdater {
 
         val url = "https://t.me/s/${channel.telegramId}"
 
-        val result = parserRepository.parseChannel(url)
+        val latestKnownMessageId = MessageRepository
+            .getMaxMessageId(channel.telegramId)
+            ?: 0
+
+        val result = parserRepository.parseChannel(
+            url = url,
+            latestKnownMessageId = latestKnownMessageId
+        )
 
         if (result.error.isNotEmpty()) {
             Log.d("TGParser", "Update failed for $channelId: ${result.error}")
@@ -38,20 +45,27 @@ object ChannelUpdater {
             result.messages
         )
 
-        val messages = MessageRepository.getMessages(channel.telegramId)
+        val lastMessage = MessageRepository.getLatestChannelMessage(
+            channel.telegramId
+        )
 
-        val lastMessage = messages.maxByOrNull { it.messageId }
+        val messagesCount = MessageRepository.countMessages(
+            channel.telegramId
+        )
 
         ChannelRepository.updateChannel(
             channel.copy(
                 name = result.channel.name.ifBlank { channel.name },
                 lastMessage = lastMessage?.text.orEmpty(),
-                messagesCount = result.messages.size,
+                messagesCount = messagesCount,
                 lastUpdate = lastMessage?.publishedAt.orEmpty(),
                 lastRefreshTime = currentIsoTimestamp()
             )
         )
 
-        Log.d("TGParser", "Updated $channelId: ${messages.size} messages")
+        Log.d(
+            "TGParser",
+            "Updated $channelId: parsed ${result.messages.size}, stored $messagesCount messages"
+        )
     }
 }

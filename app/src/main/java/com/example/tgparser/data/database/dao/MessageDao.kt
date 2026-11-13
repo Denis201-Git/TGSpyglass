@@ -45,6 +45,59 @@ interface MessageDao {
     ): List<MessageWithMedia>
 
     @Query("""
+    SELECT *
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+    AND messageId BETWEEN :minMessageId AND :maxMessageId
+    AND version = (
+        SELECT MAX(versions.version)
+        FROM messages AS versions
+        WHERE versions.channelTelegramId = messages.channelTelegramId
+        AND versions.messageId = messages.messageId
+    )
+""")
+    suspend fun getLatestMessagesInRange(
+        channelTelegramId: String,
+        minMessageId: Int,
+        maxMessageId: Int
+    ): List<MessageEntity>
+
+    @Query("""
+    SELECT *
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+    AND version = (
+        SELECT MAX(versions.version)
+        FROM messages AS versions
+        WHERE versions.channelTelegramId = messages.channelTelegramId
+        AND versions.messageId = messages.messageId
+    )
+    ORDER BY messageId DESC
+    LIMIT 1
+""")
+    suspend fun getLatestChannelMessage(
+        channelTelegramId: String
+    ): MessageEntity?
+
+    @Query("""
+    SELECT MAX(messageId)
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+""")
+    suspend fun getMaxMessageId(
+        channelTelegramId: String
+    ): Int?
+
+    @Query("""
+    SELECT COUNT(DISTINCT messageId)
+    FROM messages
+    WHERE channelTelegramId = :channelTelegramId
+""")
+    suspend fun countMessages(
+        channelTelegramId: String
+    ): Int
+
+    @Query("""
         SELECT *
         FROM messages
         WHERE channelTelegramId = :channelTelegramId

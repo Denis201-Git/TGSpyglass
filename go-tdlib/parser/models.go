@@ -15,12 +15,13 @@ type Message struct {
 }
 
 type Media struct {
-	Type       string `json:"type"`
-	URL        string `json:"url"`
-	ThumbURL   string `json:"thumb_url,omitempty"`
-	Duration   string `json:"duration,omitempty"`
-	Title      string `json:"title,omitempty"`
-	Desc       string `json:"description,omitempty"`
+	Type         string `json:"type"`
+	URL          string `json:"url"`
+	ThumbURL     string `json:"thumb_url,omitempty"`
+	Duration     string `json:"duration,omitempty"`
+	Title        string `json:"title,omitempty"`
+	Desc         string `json:"description,omitempty"`
+	NotSupported bool   `json:"not_supported,omitempty"`
 }
 
 type ParseResult struct {

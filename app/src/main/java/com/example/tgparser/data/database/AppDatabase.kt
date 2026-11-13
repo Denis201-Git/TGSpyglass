@@ -2,6 +2,8 @@ package com.example.tgparser.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tgparser.data.database.dao.ChannelDao
 import com.example.tgparser.data.database.dao.MediaDao
 import com.example.tgparser.data.database.dao.MessageDao
@@ -15,7 +17,7 @@ import com.example.tgparser.data.database.entity.MessageEntity
         MessageEntity::class,
         MediaEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -25,4 +27,21 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
 
     abstract fun mediaDao(): MediaDao
+
+    companion object {
+
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    "ALTER TABLE media ADD COLUMN notSupported INTEGER NOT NULL DEFAULT 0"
+                )
+
+            }
+
+        }
+
+    }
+
 }

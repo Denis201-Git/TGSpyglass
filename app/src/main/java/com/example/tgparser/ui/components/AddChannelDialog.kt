@@ -104,7 +104,10 @@ fun AddChannelDialog(
             try {
 
                 val result = withContext(Dispatchers.IO) {
-                    repository.parseChannel(url)
+                    repository.parseChannel(
+                        url = url,
+                        pageLimit = ParserRepository.INITIAL_PARSE_PAGES
+                    )
                 }
 
                 if (result.error.isNotEmpty()) {

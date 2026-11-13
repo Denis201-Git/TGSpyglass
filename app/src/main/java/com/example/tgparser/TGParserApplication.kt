@@ -12,7 +12,9 @@ class TGParserApplication : Application() {
             applicationContext,
             AppDatabase::class.java,
             "tgparser.db"
-        ).build()
+        )
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
     }
 
     override fun onCreate() {

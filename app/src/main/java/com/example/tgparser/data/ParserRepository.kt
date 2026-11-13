@@ -13,14 +13,29 @@ class ParserRepository {
         ignoreUnknownKeys = true
     }
 
-    fun parseChannel(url: String): ParseResult {
+    fun parseChannel(
+        url: String,
+        latestKnownMessageId: Int = 0,
+        pageLimit: Int = 0
+    ): ParseResult {
 
-        val result = parser.parseChannel(url)
+        val rawResult = parser.parseChannelIncremental(
+            url,
+            latestKnownMessageId.toLong(),
+            pageLimit.toLong()
+        )
 
-        Log.d("TGParser", "URL: $url")
-        Log.d("TGParser", "RESULT: $result")
+        val result = json.decodeFromString<ParseResult>(rawResult)
 
-        return json.decodeFromString(result)
+        Log.d(
+            "TGParser",
+            "Parsed $url: ${result.messages.size} messages, error=${result.error}"
+        )
+
+        return result
     }
 
+    companion object {
+        const val INITIAL_PARSE_PAGES = 50
+    }
 }
