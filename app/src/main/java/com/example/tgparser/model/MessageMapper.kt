@@ -12,6 +12,8 @@ fun ParserMessage.toMessage(
 
         text = text,
 
+        links = links.map { it.toTextLink() },
+
         publishedAt = publishedAt,
 
         savedAt = savedAt,
@@ -46,6 +48,15 @@ fun ParserMedia.toMedia(): Media {
 
         notSupported = notSupported
 
+    )
+
+}
+fun ParserLink.toTextLink(): TextLink {
+
+    return TextLink(
+        start = start,
+        length = length,
+        url = url
     )
 
 }

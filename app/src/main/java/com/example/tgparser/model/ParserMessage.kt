@@ -15,6 +15,9 @@ data class ParserMessage(
     @SerialName("text")
     val text: String,
 
+    @SerialName("links")
+    val links: List<ParserLink> = emptyList(),
+
     @SerialName("date")
     val publishedAt: String,
 
@@ -26,6 +29,20 @@ data class ParserMessage(
 
     @SerialName("author")
     val author: String,
+
+    @SerialName("url")
+    val url: String
+
+)
+
+@Serializable
+data class ParserLink(
+
+    @SerialName("start")
+    val start: Int,
+
+    @SerialName("length")
+    val length: Int,
 
     @SerialName("url")
     val url: String

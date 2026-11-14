@@ -47,5 +47,7 @@ data class MessageEntity(
 
     val author: String,
 
-    val url: String
+    val url: String,
+
+    val links: String = ""
 )

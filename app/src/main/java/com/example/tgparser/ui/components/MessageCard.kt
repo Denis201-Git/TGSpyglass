@@ -38,6 +38,7 @@ import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.preferences.MediaSettings
 import com.example.tgparser.model.Media
 import com.example.tgparser.model.Message
+import com.example.tgparser.model.TextLink
 import com.example.tgparser.ui.localization.LocalStrings
 import com.example.tgparser.utils.formatMessageDate
 import kotlinx.coroutines.launch
@@ -51,22 +52,27 @@ private val LINK_REGEX = Regex(
 
 private val TRAILING_PUNCTUATION = setOf('.', ',', ';', ':', '!', '?', ')', ']', '}', '"', '\'')
 
+private data class LinkRange(
+    val start: Int,
+    val end: Int,
+    val url: String
+)
+
 @Composable
-private fun linkify(text: String): AnnotatedString {
+private fun linkify(
+    text: String,
+    links: List<TextLink>
+): AnnotatedString {
     val linkColor = MaterialTheme.colorScheme.primary
-    return remember(text, linkColor) {
+    return remember(text, links, linkColor) {
         buildAnnotatedString {
             var lastIndex = 0
-            LINK_REGEX.findAll(text).forEach { match ->
-                val raw = match.value.trimEnd { it in TRAILING_PUNCTUATION }
-                if (raw.isEmpty()) return@forEach
-                append(text.substring(lastIndex, match.range.first))
-                val url =
-                    if (raw.startsWith("http://") || raw.startsWith("https://")) raw
-                    else "https://$raw"
+            buildLinkRanges(text, links).forEach { range ->
+                if (range.start < lastIndex) return@forEach
+                append(text.substring(lastIndex, range.start))
                 withLink(
                     LinkAnnotation.Url(
-                        url = url,
+                        url = range.url,
                         styles = TextLinkStyles(
                             style = SpanStyle(
                                 color = linkColor,
@@ -75,13 +81,42 @@ private fun linkify(text: String): AnnotatedString {
                         )
                     )
                 ) {
-                    append(raw)
+                    append(text.substring(range.start, range.end))
                 }
-                lastIndex = match.range.first + raw.length
+                lastIndex = range.end
             }
             append(text.substring(lastIndex))
         }
     }
+}
+
+private fun buildLinkRanges(
+    text: String,
+    links: List<TextLink>
+): List<LinkRange> {
+    val ranges = mutableListOf<LinkRange>()
+
+    links.forEach { link ->
+        val start = link.start.coerceIn(0, text.length)
+        val end = (link.start + link.length).coerceIn(start, text.length)
+        if (start < end && link.url.isNotBlank()) {
+            ranges += LinkRange(start, end, link.url)
+        }
+    }
+
+    LINK_REGEX.findAll(text).forEach { match ->
+        val raw = match.value.trimEnd { it in TRAILING_PUNCTUATION }
+        if (raw.isEmpty()) return@forEach
+        val start = match.range.first
+        val end = start + raw.length
+        if (ranges.any { start < it.end && end > it.start }) return@forEach
+        val url =
+            if (raw.startsWith("http://") || raw.startsWith("https://")) raw
+            else "https://$raw"
+        ranges += LinkRange(start, end, url)
+    }
+
+    return ranges.sortedBy { it.start }
 }
 
 @Composable
@@ -161,7 +196,7 @@ fun MessageCard(
 
             Text(
 
-                text = linkify(message.text),
+                text = linkify(message.text, message.links),
 
                 style = MaterialTheme.typography.bodyLarge,
 

@@ -1,5 +1,7 @@
 package com.example.tgparser.model
 
+import kotlinx.serialization.Serializable
+
 data class Message(
 
     val id: Long = 0L,
@@ -11,6 +13,8 @@ data class Message(
     val version: Int = 1,
 
     val text: String,
+
+    val links: List<TextLink> = emptyList(),
 
     val publishedAt: String,
 
@@ -25,6 +29,17 @@ data class Message(
     val media: List<Media>,
 
     val author: String,
+
+    val url: String
+
+)
+
+@Serializable
+data class TextLink(
+
+    val start: Int,
+
+    val length: Int,
 
     val url: String
 

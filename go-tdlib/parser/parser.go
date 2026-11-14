@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf16"
 
 	"golang.org/x/net/html"
 )
@@ -396,18 +398,127 @@ func isInsideClass(n *html.Node, class string) bool {
 }
 
 func getText(n *html.Node) string {
+	text, _ := getTextWithLinks(n)
+	return text
+}
+
+func getTextWithLinks(n *html.Node) (string, []TextLink) {
+	type draft struct {
+		start int
+		end   int
+		url   string
+	}
+
 	var text strings.Builder
+
+	drafts := make([]draft, 0)
+
+	offset := 0
+
 	var traverse func(*html.Node)
-	traverse = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			text.WriteString(n.Data)
+	traverse = func(node *html.Node) {
+		if node.Type == html.TextNode {
+			text.WriteString(node.Data)
+			offset += utf16Length(node.Data)
+			return
 		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
+
+		if node.Type == html.ElementNode && node.Data == "a" {
+			href := strings.TrimSpace(getAttr(node, attrHref))
+			if strings.HasPrefix(href, "//") {
+				href = "https:" + href
+			}
+
+			start := offset
+
+			for c := node.FirstChild; c != nil; c = c.NextSibling {
+				traverse(c)
+			}
+
+			if isTextLinkHref(href) && offset > start {
+				drafts = append(drafts, draft{
+					start: start,
+					end:   offset,
+					url:   href,
+				})
+			}
+
+			return
+		}
+
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
 			traverse(c)
 		}
 	}
 	traverse(n)
-	return strings.TrimSpace(text.String())
+
+	runes := []rune(text.String())
+
+	left := 0
+	for left < len(runes) && unicode.IsSpace(runes[left]) {
+		left++
+	}
+
+	right := len(runes)
+	for right > left && unicode.IsSpace(runes[right-1]) {
+		right--
+	}
+
+	leftOffset := utf16RuneLength(runes[:left])
+	length := utf16RuneLength(runes[left:right])
+
+	links := make([]TextLink, 0, len(drafts))
+
+	for _, item := range drafts {
+		start := item.start - leftOffset
+		end := item.end - leftOffset
+
+		if start < 0 {
+			start = 0
+		}
+
+		if end > length {
+			end = length
+		}
+
+		if start >= end {
+			continue
+		}
+
+		links = append(links, TextLink{
+			Start:  start,
+			Length: end - start,
+			URL:    item.url,
+		})
+	}
+
+	return string(runes[left:right]), links
+}
+
+func isTextLinkHref(href string) bool {
+	lower := strings.ToLower(href)
+
+	return strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://")
+}
+
+func utf16Length(value string) int {
+	length := 0
+
+	for _, r := range value {
+		length += utf16.RuneLen(r)
+	}
+
+	return length
+}
+
+func utf16RuneLength(runes []rune) int {
+	length := 0
+
+	for _, r := range runes {
+		length += utf16.RuneLen(r)
+	}
+
+	return length
 }
 
 func parseMessage(wrap *html.Node) *Message {
@@ -429,8 +540,11 @@ func parseMessage(wrap *html.Node) *Message {
 	messageID, _ := strconv.Atoi(parts[1])
 
 	var text string
+
+	var links []TextLink
+
 	if textNode := findMessageText(msgNode); textNode != nil {
-		text = getText(textNode)
+		text, links = getTextWithLinks(textNode)
 	}
 
 	var date time.Time
@@ -462,6 +576,7 @@ func parseMessage(wrap *html.Node) *Message {
 		Channel:   channel,
 		MessageID: messageID,
 		Text:      text,
+		Links:     links,
 		Date:      date,
 		Views:     views,
 		Media:     extractMedia(msgNode),

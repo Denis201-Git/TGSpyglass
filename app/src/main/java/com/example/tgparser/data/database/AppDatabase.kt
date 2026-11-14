@@ -17,7 +17,7 @@ import com.example.tgparser.data.database.entity.MessageEntity
         MessageEntity::class,
         MediaEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,6 +36,18 @@ abstract class AppDatabase : RoomDatabase() {
 
                 db.execSQL(
                     "ALTER TABLE media ADD COLUMN notSupported INTEGER NOT NULL DEFAULT 0"
+                )
+
+            }
+
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+
+            override fun migrate(db: SupportSQLiteDatabase) {
+
+                db.execSQL(
+                    "ALTER TABLE messages ADD COLUMN links TEXT NOT NULL DEFAULT ''"
                 )
 
             }

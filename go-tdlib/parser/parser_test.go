@@ -235,3 +235,60 @@ func testPage(firstID string, secondID string, before string) string {
 	  </div>
 	</div>` + more
 }
+
+func TestExtractMessagesInlineLinks(t *testing.T) {
+	const page = `<div class="tgme_widget_message_wrap">
+	  <div class="tgme_widget_message" data-post="telegram/455">
+	    <div class="tgme_widget_message_text js-message_text">🏆 See <a href="https://example.com/a" target="_blank">this link</a> and <a href="https://t.me/telegram/455">1</a>.</div>
+	    <a class="tgme_widget_message_date" href="https://t.me/telegram/455"><time datetime="2020-01-01T00:00:00Z"></time></a>
+	  </div>
+	</div>`
+	doc, err := html.Parse(strings.NewReader(page))
+	if err != nil {
+		t.Fatal(err)
+	}
+	messages := extractMessages(doc)
+	if len(messages) != 1 {
+		t.Fatalf("expected one message, got %#v", messages)
+	}
+
+	message := messages[0]
+	if message.Text != "🏆 See this link and 1." {
+		t.Errorf("text = %q", message.Text)
+	}
+
+	want := []TextLink{
+		{Start: 7, Length: 9, URL: "https://example.com/a"},
+		{Start: 21, Length: 1, URL: "https://t.me/telegram/455"},
+	}
+	if len(message.Links) != len(want) {
+		t.Fatalf("links = %#v, want %#v", message.Links, want)
+	}
+	for i := range want {
+		if message.Links[i] != want[i] {
+			t.Errorf("link %d = %#v, want %#v", i, message.Links[i], want[i])
+		}
+	}
+}
+
+func TestGetTextWithLinksTrimsWhitespace(t *testing.T) {
+	const page = `<div class="tgme_widget_message_text js-message_text">
+	  A <a href="https://example.com">B</a>
+	</div>`
+	doc, err := html.Parse(strings.NewReader(page))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	text, links := getTextWithLinks(doc)
+	if text != "A B" {
+		t.Errorf("text = %q", text)
+	}
+	if len(links) != 1 {
+		t.Fatalf("links = %#v", links)
+	}
+	want := (TextLink{Start: 2, Length: 1, URL: "https://example.com"})
+	if links[0] != want {
+		t.Errorf("link = %#v, want %#v", links[0], want)
+	}
+}

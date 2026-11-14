@@ -8,11 +8,17 @@ import com.example.tgparser.data.database.entity.MessageEntity
 import com.example.tgparser.data.database.relation.MessageWithMedia
 import com.example.tgparser.model.Media
 import com.example.tgparser.model.Message
+import com.example.tgparser.model.ParserLink
 import com.example.tgparser.model.ParserMessage
+import com.example.tgparser.model.TextLink
 import com.example.tgparser.model.toMedia
+import com.example.tgparser.model.toTextLink
 import com.example.tgparser.utils.currentIsoTimestamp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -28,6 +34,10 @@ object MessageRepository {
 
     private val mediaDao
         get() = database.mediaDao()
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     suspend fun getMessages(
         channelTelegramId: String
@@ -286,6 +296,7 @@ object MessageRepository {
             messageId = parser.messageId,
             version = 1,
             text = parser.text,
+            links = parser.links.map { it.toTextLink() },
             publishedAt = parser.publishedAt,
             savedAt = currentIsoTimestamp(),
             views = parser.views,
@@ -301,6 +312,7 @@ object MessageRepository {
     ): Boolean {
 
         return current.text != parser.text ||
+                current.links != parser.links.map { it.toTextLink() } ||
                 current.media != parser.media.map { it.toMedia() } ||
                 current.author != parser.author ||
                 current.url != parser.url ||
@@ -325,6 +337,7 @@ object MessageRepository {
             messageId = current.messageId,
             version = current.version + 1,
             text = parser.text,
+            links = parser.links.map { it.toTextLink() },
             publishedAt = parser.publishedAt,
             savedAt = currentIsoTimestamp(),
             isEdited = false,
@@ -366,8 +379,29 @@ object MessageRepository {
             isDeleted = isDeleted,
             views = views,
             author = author,
-            url = url
+            url = url,
+            links = encodeLinks(links)
         )
+    }
+
+    private fun encodeLinks(links: List<TextLink>): String {
+
+        return if (links.isEmpty()) {
+            ""
+        } else {
+            json.encodeToString(links)
+        }
+    }
+
+    private fun decodeLinks(links: String): List<TextLink> {
+
+        if (links.isBlank()) {
+            return emptyList()
+        }
+
+        return runCatching {
+            json.decodeFromString<List<TextLink>>(links)
+        }.getOrDefault(emptyList())
     }
 
     private fun Media.toEntity(
@@ -394,6 +428,7 @@ object MessageRepository {
             messageId = messageId,
             version = version,
             text = text,
+            links = decodeLinks(links),
             publishedAt = publishedAt,
             savedAt = savedAt,
             isEdited = isEdited,
@@ -413,6 +448,7 @@ object MessageRepository {
             messageId = message.messageId,
             version = message.version,
             text = message.text,
+            links = decodeLinks(message.links),
             publishedAt = message.publishedAt,
             savedAt = message.savedAt,
             isEdited = message.isEdited,
