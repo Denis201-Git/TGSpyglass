@@ -62,4 +62,12 @@ interface AppStrings {
 
     val close: String
 
+    val messagesStyle: String
+
+    val messagesStyleClassic: String
+
+    val messagesStyleBorderless: String
+
+    val chooseMessagesStyle: String
+
 }

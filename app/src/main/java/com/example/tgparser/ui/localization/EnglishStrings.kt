@@ -62,4 +62,12 @@ object EnglishStrings : AppStrings {
 
     override val close = "Close"
 
+    override val messagesStyle = "Messages style"
+
+    override val messagesStyleClassic = "Classic"
+
+    override val messagesStyleBorderless = "Borderless"
+
+    override val chooseMessagesStyle = "Choose messages style"
+
 }

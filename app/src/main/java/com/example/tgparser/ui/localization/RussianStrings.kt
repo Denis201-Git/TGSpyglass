@@ -62,4 +62,12 @@ object RussianStrings : AppStrings {
 
     override val close = "Закрыть"
 
+    override val messagesStyle = "Стиль сообщений"
+
+    override val messagesStyleClassic = "Классический"
+
+    override val messagesStyleBorderless = "Без фона"
+
+    override val chooseMessagesStyle = "Выберите стиль сообщений"
+
 }

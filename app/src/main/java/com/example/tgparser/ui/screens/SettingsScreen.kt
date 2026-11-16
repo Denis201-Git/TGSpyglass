@@ -25,6 +25,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.ui.unit.dp
 import com.example.tgparser.viewmodel.LanguageViewModel
 import com.example.tgparser.viewmodel.MediaSettingsViewModel
+import com.example.tgparser.viewmodel.MessageStyleViewModel
+import com.example.tgparser.data.preferences.MessageStyle
 import androidx.compose.material3.MaterialTheme
 import com.example.tgparser.ui.localization.LocalStrings
 
@@ -35,11 +37,13 @@ fun SettingsScreen(
     themeViewModel: ThemeViewModel = viewModel(),
     languageViewModel: LanguageViewModel = viewModel(),
     mediaSettingsViewModel: MediaSettingsViewModel = viewModel(),
+    messageStyleViewModel: MessageStyleViewModel = viewModel(),
 ) {
 
     val currentTheme by themeViewModel.theme.collectAsState()
     val currentLanguage by languageViewModel.language.collectAsState()
     val currentMediaSettings by mediaSettingsViewModel.settings.collectAsState()
+    val currentMessageStyle by messageStyleViewModel.style.collectAsState()
     val strings = LocalStrings.current
 
     var showThemeDialog by remember {
@@ -51,6 +55,10 @@ fun SettingsScreen(
     }
 
     var showMediaDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var showMessagesStyleDialog by remember {
         mutableStateOf(false)
     }
 
@@ -114,6 +122,44 @@ fun SettingsScreen(
                             contentDescription = null
                         )
 
+                    }
+
+                )
+
+            }
+
+
+            item {
+
+                ListItem(
+
+                    headlineContent = {
+                        Text(strings.messagesStyle)
+                    },
+
+                    supportingContent = {
+                        Text(
+                            when (currentMessageStyle) {
+                                MessageStyle.CLASSIC ->
+                                    strings.messagesStyleClassic
+
+                                MessageStyle.BORDERLESS ->
+                                    strings.messagesStyleBorderless
+                            }
+                        )
+                    },
+
+                    leadingContent = {
+
+                        Icon(
+                            imageVector = AppIcons.Chat(),
+                            contentDescription = null
+                        )
+
+                    },
+
+                    modifier = Modifier.clickable {
+                        showMessagesStyleDialog = true
                     }
 
                 )
@@ -399,6 +445,65 @@ fun SettingsScreen(
                         themeViewModel.setTheme(theme)
                         showThemeDialog = false
 
+                    }
+
+                )
+
+            }
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+        }
+
+    }
+
+    if (showMessagesStyleDialog) {
+
+        ModalBottomSheet(
+            onDismissRequest = {
+                showMessagesStyleDialog = false
+            }
+        ) {
+
+            Text(
+                text = strings.chooseMessagesStyle,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            MessageStyle.entries.forEach { style ->
+
+                ListItem(
+
+                    headlineContent = {
+                        Text(
+                            when (style) {
+                                MessageStyle.CLASSIC ->
+                                    strings.messagesStyleClassic
+
+                                MessageStyle.BORDERLESS ->
+                                    strings.messagesStyleBorderless
+                            }
+                        )
+                    },
+
+                    trailingContent = {
+
+                        RadioButton(
+                            selected = currentMessageStyle == style,
+                            onClick = {
+                                messageStyleViewModel.setStyle(style)
+                                showMessagesStyleDialog = false
+                            }
+                        )
+
+                    },
+
+                    modifier = Modifier.clickable {
+                        messageStyleViewModel.setStyle(style)
+                        showMessagesStyleDialog = false
                     }
 
                 )

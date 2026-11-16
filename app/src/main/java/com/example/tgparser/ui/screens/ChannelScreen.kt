@@ -33,6 +33,7 @@ import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.MessageRepository
 import com.example.tgparser.data.ParserState
 import com.example.tgparser.data.preferences.MediaSettings
+import com.example.tgparser.data.preferences.MessageStyle
 import com.example.tgparser.model.Message
 import com.example.tgparser.ui.components.EmptyMessages
 import com.example.tgparser.ui.components.MessageCard
@@ -40,6 +41,7 @@ import com.example.tgparser.ui.localization.LocalStrings
 import com.example.tgparser.viewmodel.ChannelViewModel
 import com.example.tgparser.viewmodel.ChannelViewModelFactory
 import com.example.tgparser.viewmodel.MediaSettingsViewModel
+import com.example.tgparser.viewmodel.MessageStyleViewModel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -63,6 +65,10 @@ fun ChannelScreen(
 
     val mediaSettingsViewModel: MediaSettingsViewModel = viewModel()
     val mediaSettings by mediaSettingsViewModel.settings.collectAsState()
+
+    val messageStyleViewModel: MessageStyleViewModel = viewModel()
+    val messageStyle by messageStyleViewModel.style.collectAsState()
+
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
@@ -165,6 +171,7 @@ fun ChannelScreen(
                                 channelId = channelId,
                                 latestMessage = latestMessage,
                                 mediaSettings = mediaSettings,
+                                messageStyle = messageStyle,
                                 displayedVersion = viewModel.displayedVersions[latestMessage.messageId],
                                 onVersionChange = { version ->
                                     viewModel.onVersionChange(
@@ -216,6 +223,7 @@ private fun VersionedMessageCard(
     channelId: String,
     latestMessage: Message,
     mediaSettings: MediaSettings,
+    messageStyle: MessageStyle,
     displayedVersion: Int?,
     onVersionChange: (Int) -> Unit
 ) {
@@ -251,6 +259,7 @@ private fun VersionedMessageCard(
         message = message,
         versionsCount = versionsCount,
         mediaSettings = mediaSettings,
+        messageStyle = messageStyle,
         onPreviousVersion = {
             if (message.version > 1) {
                 onVersionChange(message.version - 1)

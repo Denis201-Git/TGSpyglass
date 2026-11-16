@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.tgparser.data.AppSnackbarManager
 import com.example.tgparser.data.preferences.MediaSettings
+import com.example.tgparser.data.preferences.MessageStyle
 import com.example.tgparser.model.Media
 import com.example.tgparser.model.Message
 import com.example.tgparser.model.TextLink
@@ -124,6 +128,7 @@ fun MessageCard(
     message: Message,
     versionsCount: Int,
     mediaSettings: MediaSettings,
+    messageStyle: MessageStyle = MessageStyle.CLASSIC,
     onPreviousVersion: (() -> Unit)? = null,
     onNextVersion: (() -> Unit)? = null
 ) {
@@ -166,14 +171,33 @@ fun MessageCard(
 
     }
 
-    Column(
+    val containerModifier = when (messageStyle) {
 
-        modifier = Modifier
+        MessageStyle.CLASSIC -> Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 8.dp,
+                vertical = 4.dp
+            )
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(
+                horizontal = 12.dp,
+                vertical = 10.dp
+            )
+
+        MessageStyle.BORDERLESS -> Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
                 vertical = 10.dp
             )
+
+    }
+
+    Column(
+
+        modifier = containerModifier
 
     ) {
 

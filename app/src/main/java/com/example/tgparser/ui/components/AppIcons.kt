@@ -21,4 +21,5 @@ object AppIcons {
     @Composable fun Code(): ImageVector = ImageVector.vectorResource(R.drawable.ic_code)
     @Composable fun Play(): ImageVector = ImageVector.vectorResource(R.drawable.ic_play)
     @Composable fun File(): ImageVector = ImageVector.vectorResource(R.drawable.ic_file)
+    @Composable fun Chat(): ImageVector = ImageVector.vectorResource(R.drawable.ic_chat)
 }
