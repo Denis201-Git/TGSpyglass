@@ -9,6 +9,8 @@
 .idea/
 models.md
 report.txt
+app/libs/mobile.aar
 
 # Go build artifacts
 go-tdlib/tgparser
+app/libs/mobile-sources.jar

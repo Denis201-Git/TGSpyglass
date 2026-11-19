@@ -8,6 +8,8 @@ plugins {
     kotlin("plugin.serialization") version "2.3.10"
 }
 
+val isFdroidBuild = project.hasProperty("fdroid")
+
 android {
     namespace = "io.github.denis201git.tgspyglass"
     compileSdk {
@@ -25,12 +27,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = File("${System.getenv("HOME")}/.android/debug.keystore")
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-            storePassword = "android"
+    if (!isFdroidBuild) {
+        signingConfigs {
+            create("release") {
+                storeFile = File("${System.getenv("HOME")}/.android/debug.keystore")
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+                storePassword = "android"
+            }
         }
     }
 
@@ -42,7 +46,9 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            if (!isFdroidBuild) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -52,9 +58,9 @@ android {
 
     splits {
         abi {
-            isEnable = true
+            isEnable = !isFdroidBuild
             reset()
-            include("arm64-v8a", "x86_64")
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
             isUniversalApk = false
         }
     }
