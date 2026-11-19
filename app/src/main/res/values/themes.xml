@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TGParser" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="SplashTheme.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/splash_light</item>
+    </style>
+
+    <style name="SplashTheme.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_dark</item>
+    </style>
+
+    <style name="SplashTheme.Amoled" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_amoled</item>
+    </style>
+
+    <style name="SplashTheme.System" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+
+    <style name="Theme.TGParser" parent="SplashTheme.System" />
+
 </resources>

@@ -1,6 +1,7 @@
 package io.github.denis201git.tgspyglass.ui.theme
 
 import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +12,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -72,6 +74,7 @@ fun TGParserTheme(
 
     SideEffect {
         val window = (view.context as Activity).window
+        window.setBackgroundDrawable(ColorDrawable(colorScheme.background.toArgb()))
         WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = when (appTheme) {
             AppTheme.LIGHT -> true
             AppTheme.DARK -> false

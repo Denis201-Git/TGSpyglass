@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SplashTheme.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/splash_light</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_light</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+
+    <style name="SplashTheme.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_dark</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_dark</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+
+    <style name="SplashTheme.Amoled" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_amoled</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_amoled</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+
+    <style name="SplashTheme.System" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+
+    <style name="Theme.TGParser" parent="SplashTheme.System" />
+
+</resources>

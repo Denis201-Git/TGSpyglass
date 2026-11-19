@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 
 class ThemeViewModel(
-    application: Application
+    private val application: Application
 ) : AndroidViewModel(application) {
 
 
