@@ -1,0 +1,76 @@
+package io.github.denis201git.tgspyglass.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ParserMessage(
+
+    @SerialName("channel")
+    val channelUsername: String,
+
+    @SerialName("message_id")
+    val messageId: Int,
+
+    @SerialName("text")
+    val text: String,
+
+    @SerialName("links")
+    val links: List<ParserLink> = emptyList(),
+
+    @SerialName("date")
+    val publishedAt: String,
+
+    @SerialName("views")
+    val views: String,
+
+    @SerialName("media")
+    val media: List<ParserMedia>,
+
+    @SerialName("author")
+    val author: String,
+
+    @SerialName("url")
+    val url: String
+
+)
+
+@Serializable
+data class ParserLink(
+
+    @SerialName("start")
+    val start: Int,
+
+    @SerialName("length")
+    val length: Int,
+
+    @SerialName("url")
+    val url: String
+
+)
+
+@Serializable
+data class ParserMedia(
+
+    @SerialName("type")
+    val type: String,
+
+    @SerialName("url")
+    val url: String,
+
+    @SerialName("thumb_url")
+    val thumbUrl: String? = null,
+
+    @SerialName("duration")
+    val duration: String? = null,
+
+    @SerialName("title")
+    val title: String? = null,
+
+    @SerialName("description")
+    val description: String? = null,
+
+    @SerialName("not_supported")
+    val notSupported: Boolean = false
+
+)

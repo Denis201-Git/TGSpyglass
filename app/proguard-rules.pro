@@ -1,5 +1,5 @@
 # Keep rules for TGParser
--keep class com.example.tgparser.model.** { *; }
+-keep class io.github.denis201git.tgspyglass.model.** { *; }
 -keepattributes Signature, InnerClasses, EnclosingMethod
 
 # Room

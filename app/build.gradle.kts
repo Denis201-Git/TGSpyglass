@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tgparser"
+    namespace = "io.github.denis201git.tgspyglass"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.tgparser"
+        applicationId = "io.github.denis201git.tgspyglass"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
