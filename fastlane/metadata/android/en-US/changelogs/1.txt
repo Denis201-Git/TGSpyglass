@@ -1,0 +1,1 @@
+Initial release: public channel parsing, local message history with versions, media, clickable links, themes, language settings, Classic and Borderless message styles.
