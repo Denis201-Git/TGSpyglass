@@ -58,7 +58,11 @@ object EnglishStrings : AppStrings {
 
     override val copied = "Copied to clipboard"
 
-    override val videoPlayerNotFound = "No app found to play this video"
+    override val videoPlayerNotFound = "Unable to play video"
+
+    override val play = "Play"
+
+    override val pause = "Pause"
 
     override val close = "Close"
 

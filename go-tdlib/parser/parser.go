@@ -636,6 +636,9 @@ func extractMedia(msgNode *html.Node) []Media {
 		if videoTag := findChild(node, "video", classVideoTag); videoTag != nil {
 			videoURL = getAttr(videoTag, attrSrc)
 		}
+		if strings.HasPrefix(videoURL, "//") {
+			videoURL = "https:" + videoURL
+		}
 
 		media = append(media, Media{
 			Type:         mediaTypeVideo,

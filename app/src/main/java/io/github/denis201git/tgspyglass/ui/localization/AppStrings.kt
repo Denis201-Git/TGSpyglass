@@ -60,6 +60,10 @@ interface AppStrings {
 
     val videoPlayerNotFound: String
 
+    val play: String
+
+    val pause: String
+
     val close: String
 
     val messagesStyle: String

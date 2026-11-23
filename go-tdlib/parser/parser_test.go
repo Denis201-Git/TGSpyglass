@@ -68,6 +68,31 @@ func TestExtractMessagesPlayableVideo(t *testing.T) {
 	}
 }
 
+func TestExtractMessagesPlayableVideoProtocolRelativeURL(t *testing.T) {
+	const page = `<div class="tgme_widget_message_wrap">
+	  <div class="tgme_widget_message" data-post="telegram/442">
+	    <a class="tgme_widget_message_video_player js-message_video_player" href="https://t.me/telegram/442">
+	      <i class="tgme_widget_message_video_thumb" style="background-image:url('https://cdn.example/thumb.jpg')"></i>
+	      <div class="tgme_widget_message_video_wrap"><video src="//cdn.example/video.mp4" class="tgme_widget_message_video"></video></div>
+	      <time class="message_video_duration">0:06</time>
+	    </a>
+	    <a class="tgme_widget_message_date" href="https://t.me/telegram/442"><time datetime="2020-01-01T00:00:00Z"></time></a>
+	  </div>
+	</div>`
+	doc, err := html.Parse(strings.NewReader(page))
+	if err != nil {
+		t.Fatal(err)
+	}
+	messages := extractMessages(doc)
+	if len(messages) != 1 || len(messages[0].Media) != 1 {
+		t.Fatalf("expected one message with one attachment, got %#v", messages)
+	}
+	want := (Media{Type: "video", URL: "https://cdn.example/video.mp4", ThumbURL: "https://cdn.example/thumb.jpg", Duration: "0:06"})
+	if got := messages[0].Media[0]; got != want {
+		t.Errorf("attachment = %#v, want %#v", got, want)
+	}
+}
+
 func TestExtractMessagesReplyUsesPostText(t *testing.T) {
 	const page = `<div class="tgme_widget_message_wrap">
 	  <div class="tgme_widget_message" data-post="durov/558">

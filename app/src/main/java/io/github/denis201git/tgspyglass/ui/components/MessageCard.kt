@@ -147,6 +147,10 @@ fun MessageCard(
         mutableStateOf<Media?>(null)
     }
 
+    var viewerVideo by remember(message.id) {
+        mutableStateOf<Media?>(null)
+    }
+
     val openMedia: (Media) -> Unit = { media ->
 
         when (media.type) {
@@ -155,11 +159,15 @@ fun MessageCard(
 
             "video" -> {
 
-                if (!media.notSupported && !openVideo(context, media.url)) {
+                if (media.url.isBlank()) {
 
                     scope.launch {
                         AppSnackbarManager.show(strings.videoPlayerNotFound, isError = true)
                     }
+
+                } else {
+
+                    viewerVideo = media
 
                 }
 
@@ -280,6 +288,17 @@ fun MessageCard(
 
         }
 
+        viewerVideo?.let { media ->
+
+            VideoViewerDialog(
+                media = media,
+                onDismiss = {
+                    viewerVideo = null
+                }
+            )
+
+        }
+
 
         Row(
 
@@ -391,23 +410,6 @@ fun MessageCard(
 
     }
 
-}
-
-private fun openVideo(context: Context, url: String): Boolean {
-    if (url.isBlank()) {
-        return false
-    }
-
-    return try {
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(url.toUri(), "video/*")
-            }
-        )
-        true
-    } catch (e: ActivityNotFoundException) {
-        false
-    }
 }
 
 private fun openLink(context: Context, url: String): Boolean {

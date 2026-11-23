@@ -58,7 +58,11 @@ object RussianStrings : AppStrings {
 
     override val copied = "Скопировано в буфер обмена"
 
-    override val videoPlayerNotFound = "Не найдено приложение для воспроизведения видео"
+    override val videoPlayerNotFound = "Не удалось воспроизвести видео"
+
+    override val play = "Воспроизвести"
+
+    override val pause = "Пауза"
 
     override val close = "Закрыть"
 

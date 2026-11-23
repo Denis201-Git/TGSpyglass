@@ -20,6 +20,7 @@ object AppIcons {
     @Composable fun VideoLibrary(): ImageVector = ImageVector.vectorResource(R.drawable.ic_video_library)
     @Composable fun Code(): ImageVector = ImageVector.vectorResource(R.drawable.ic_code)
     @Composable fun Play(): ImageVector = ImageVector.vectorResource(R.drawable.ic_play)
+    @Composable fun Pause(): ImageVector = ImageVector.vectorResource(R.drawable.ic_pause)
     @Composable fun File(): ImageVector = ImageVector.vectorResource(R.drawable.ic_file)
     @Composable fun Chat(): ImageVector = ImageVector.vectorResource(R.drawable.ic_chat)
 }
